@@ -1,8 +1,6 @@
-import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import matplotlib.pyplot as plt
 from data import X_train, y_train, X_test
 from model import SimpleNN
 from plot import visualize_diff, visualize_filtered_activations, calculate_overlap_and_divergence
