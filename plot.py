@@ -70,11 +70,11 @@ def visualize_filtered_activations(trace, classification_result, save_result=Fal
         if path in filtered_paths:
             layer = path["layer"]
             neuron_id = path["neuron_id"]
-            input_ids = path["input_ids"]
+            source_neurons = path["source_neruons"]
             activation = path["activation"]
         
-            for input_id in input_ids:
-                ax.plot([layer-1, layer], [input_id, neuron_id], [0, 1], color=color)
+            for neuron in source_neurons:
+                ax.plot([layer-1, layer], [source_neurons, neuron_id], [0, 1], color=color)
 
     ax.set_xlabel('Layer')
     ax.set_ylabel('Neuron')
@@ -87,4 +87,25 @@ def visualize_filtered_activations(trace, classification_result, save_result=Fal
         plt.savefig(file_path)
         print(f"Plot saved to {file_path}")
     
+    plt.show()
+
+def plot_all_paths(trace):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot all paths
+    for classification_result, paths in trace.paths.items():
+        for path in paths:
+            layer = path["layer"]
+            neuron_id = path["neuron_id"]
+            activation = path["activation"]
+            color = 'blue' if classification_result == 1 else 'red'
+            
+            # Plot the neuron activation
+            ax.scatter(layer, neuron_id[1], activation, color=color)
+
+    ax.set_xlabel('Layer')
+    ax.set_ylabel('Neuron')
+    ax.set_zlabel('Activation')
+    plt.title('Neuron Activations in All Layers')
     plt.show()
