@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from data import X_train, y_train, X_test
 from model import SimpleNN
-from plot import visualize_diff, visualize_filtered_activations, calculate_overlap_and_divergence, plot_all_paths
+from plot import visualize_diff, visualize_filtered_activations, calculate_overlap_and_divergence, plot_model_skeleton
 
 class TraceObject:
     def __init__(self):
@@ -72,13 +72,12 @@ model.eval()
 with torch.no_grad():
     predictions = model.predict(X_test)
 
-
+plot_model_skeleton(neuron_ids=model.neuron_ids)
 # Calculate overlap and divergence
 # overlap, divergence_0, divergence_1 = calculate_overlap_and_divergence(model.trace)
 # visualize_diff(overlap, divergence_0, divergence_1)
 
 # Example usage
 # Example usage
-plot_all_paths(model.trace)
 # classification_result_to_visualize = 0  # Choose the classification result to visualize (0 or 1)
 # visualize_filtered_activations(model.trace, classification_result_to_visualize, save_result=True)

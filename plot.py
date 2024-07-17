@@ -13,6 +13,21 @@ def stain(trace):
     
     return colored_paths
 
+def plot_model_skeleton(neuron_ids):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Plot neurons for each layer
+    for layer, neurons in neuron_ids.items():
+        for neuron in neurons:
+            ax.scatter(neuron[0], neuron[1], 0, color='black')
+
+    ax.set_xlabel('Layer')
+    ax.set_ylabel('Neuron')
+    ax.set_zlabel('Activation')
+    plt.title('Model Skeleton')
+    plt.show()
+
 def filter_paths_by_classification(trace, classification_result):
     return trace.paths.get(classification_result, [])
 
