@@ -120,7 +120,7 @@ class SimpleNN(nn.Module):
 
         for i in range(batch_size):
             for j in range(num_neurons):
-                neuron_id = start_index + j - 1  # Adjusted to start from 1-based indexing
+                neuron_id = start_index + j  # Adjusted to start from 1-based indexing
                 activation_value = activations[i, j].item()
                 output_neurons = []  # Define logic to get output neurons if needed
                 classification_result = None  # Define logic to get classification result if needed
@@ -133,7 +133,8 @@ class SimpleNN(nn.Module):
                     print(f"Recording activation: epoch={epoch}, layer={layer}, neuron_id={neuron_id}, activation_value={activation_value}")
                     self.network_trace.record_neuron_state(trace_obj, activation_value, input_neurons, output_neurons)
                 except KeyError as e:
-                    print(f"Error: Neuron {neuron_key} not found in trace at {epoch_key}, {layer_key}")
+                    print(f"Error: Neuron {neuron_key} not found in trace at {epoch_key}, {layer_key}. Continuing to next neuron.")
+                    continue  # Skip to the next neuron if the current one is not found
 
     def predict(self, x, epoch):
         self.eval()
