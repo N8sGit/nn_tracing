@@ -1,4 +1,5 @@
-# Helper functions to inspect internal model states, outputs, etc
+# Helper functions to inspect and format internal model states, outputs, etc
+import json
 
 def print_model_parameters(neuron_ids, clusters, layer_mapping, trace):
     def print_dict(dictionary, name):
@@ -23,3 +24,32 @@ def print_model_parameters(neuron_ids, clusters, layer_mapping, trace):
     co_activations = trace.get_co_activations()
     for neuron_id, co_activated_neurons in co_activations.items():
         print(f"  Neuron ID: {neuron_id}, Co-Activated Neurons: {list(co_activated_neurons)}")
+
+def print_network_trace(network_trace):
+    for epoch, layers in network_trace.items():
+        print(f"Epoch {epoch}:")
+        for layer, neurons in layers.items():
+            print(f"  Layer {layer}:")
+            for neuron_id, data in neurons.items():
+                print(f"    Neuron ID {neuron_id}:")
+                for activation, state in data["activations"].items():
+                    print(f"      Activation: {activation}")
+                    print(f"        Input Neurons: {state['input_state']}")
+                    print(f"        Output Neurons: {state['output_state']}")
+                    print(f"        Classification Result: {state['classification_result']}")
+        print("\n")
+
+
+def network_trace_to_dict(network_trace):
+    trace_dict = {}
+    for epoch, layers in network_trace.get_trace().items():
+        trace_dict[epoch] = {}
+        for layer, neurons in layers.items():
+            trace_dict[epoch][layer] = {}
+            for neuron_id, trace_obj in neurons.items():
+                trace_dict[epoch][layer][neuron_id] = trace_obj.to_dict()
+    return trace_dict
+
+def print_network_trace(network_trace):
+    trace_dict = network_trace_to_dict(network_trace)
+    print(json.dumps(trace_dict, indent=2))
