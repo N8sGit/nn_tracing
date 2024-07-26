@@ -29,6 +29,7 @@ for epoch in range(num_epochs):
     loss = criterion(outputs, targets)
     loss.backward()
     optimizer.step()
+    model.network_trace.determine_canonical_results()
 
 model.network_trace.print_history()
 # Record predictions on test data

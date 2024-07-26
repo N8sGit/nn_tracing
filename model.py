@@ -8,7 +8,6 @@ class TraceObject:
         self.signature = f"E_{epoch}-{layer}-n_{neuron_id}"
         self.canonical_activation = None
         self.canonical_input_neurons = None
-        self.canonical_output_neurons = None
         self.classification_result = None  # Add classification result
         self.binary_classification_result = None  # Add binary classification result
 
@@ -16,9 +15,8 @@ class TraceObject:
         return {
             "canonical_activation": self.canonical_activation,
             "canonical_input_neurons": self.canonical_input_neurons,
-            "canonical_output_neurons": self.canonical_output_neurons,
-            "classification_result": self.classification_result,  # Include classification result
-            "binary_classification_result": self.binary_classification_result,  # Include binary classification result
+            "raw_classification_result": self.classification_result, 
+            "binary_classification_result": self.binary_classification_result,
             "signature": self.signature
         }
 
@@ -62,7 +60,7 @@ class NetworkTrace:
                     self.neuron_counter += 1
         return trace
 
-    def record_neuron_state(self, signature, activation, input_neurons, output_neurons, classification_result=None, binary_classification_result=None):
+    def record_neuron_state(self, signature, activation, input_neurons, classification_result=None, binary_classification_result=None):
         print(f"record_neuron_state called with signature: {signature}")
         epoch, layer, neuron_id = parse_signature(signature)
         epoch_key = f"E_{epoch}"
@@ -80,8 +78,16 @@ class NetworkTrace:
         classification_result = classification_result if not isinstance(classification_result, torch.Tensor) else classification_result.item()
         binary_classification_result = binary_classification_result if not isinstance(binary_classification_result, torch.Tensor) else binary_classification_result.item()
 
-        self.history[epoch_key][signature].append((activation, input_neurons, output_neurons, classification_result, binary_classification_result))
+        self.history[epoch_key][signature].append((activation, input_neurons, classification_result, binary_classification_result))
         print(f"Updated history for {epoch_key} {layer_key} {neuron_key}: {self.history[epoch_key][signature]}")  # Debug statement
+
+    def determine_canonical_results(self):
+        for key, value in self.history.items():
+            for key_, value_ in value.items():
+                print('TYPEE', type(value_))
+                print(key_, 'KEYYY')
+                print(len(value_), 'lengggg')
+                print(value_)
 
     def get_trace(self, epoch=None, layer=None, neuron_id=None):
         if epoch is not None and layer is not None and neuron_id is not None:
@@ -134,36 +140,48 @@ class SimpleNN(nn.Module):
             current_index += len(self.neuron_ids[layer])
 
     def forward(self, x, epoch):
+        # Input layer
+        input_neurons_signatures = [f"E_{epoch}-L_input-n_{i}" for i in range(self.L_input.in_features)]
         x1 = torch.relu(self.L_input(x))
-        self.record_activations(epoch, 'L_input', x1, self.neuron_ids['L_input'])
+        self.record_activations(epoch, 'L_input', x1, input_neurons_signatures)
+
+        # Hidden layer
+        input_neurons_signatures = [f"E_{epoch}-L_input-n_{i}" for i in range(self.L_input.out_features)]
         x2 = torch.relu(self.fc1(x1))
-        self.record_activations(epoch, 'L_hidden_1', x2, self.neuron_ids['L_hidden_1'])
+        self.record_activations(epoch, 'L_hidden_1', x2, input_neurons_signatures)
+
+        # Output layer
+        input_neurons_signatures = [f"E_{epoch}-L_hidden_1-n_{i}" for i in range(self.fc1.out_features)]
         x3 = self.sigmoid(self.L_output(x2))
         binary_classification_result = (x3 >= 0.5).float()  # Get binary classification result
-        self.record_activations(epoch, 'L_output', x3, self.neuron_ids['L_output'], classification_result=x3, binary_classification_result=binary_classification_result)
-        return x3
+        self.record_activations(epoch, 'L_output', x3, input_neurons_signatures, classification_result=x3, binary_classification_result=binary_classification_result)
 
+        return x3
+    
     def record_activations(self, epoch, layer, activations, input_neurons, classification_result=None, binary_classification_result=None):
-        batch_size = activations.size(0)
-        num_neurons = activations.size(1)
-        start_index, end_index = self.neural_index[layer]
+        batch_size, num_neurons = activations.size()
+        start_index, _ = self.neural_index[layer]
 
         for i in range(batch_size):
+            input_neurons_signatures = input_neurons  # Directly pass the input neuron signatures
+            
             for j in range(num_neurons):
                 neuron_id = start_index + j  # Adjusted to start from 1-based indexing
                 activation_value = activations[i, j].item()
-                output_neurons = []  # Define logic to get output neurons if needed
-                input_neurons_signatures = [f"E_{epoch}-{layer}-n_{neuron}" for neuron in input_neurons]
-                output_neurons_signatures = [f"E_{epoch}-{layer}-n_{neuron}" for neuron in output_neurons]
                 signature = f"E_{epoch}-{layer}-n_{neuron_id}"
-
+                
                 try:
                     trace_obj = self.network_trace.trace[f"E_{epoch}"][layer][f"n_{neuron_id}"]
-                    print('TRACE OBJ', trace_obj.signature)
                     print(f"Recording activation: epoch={epoch}, layer={layer}, neuron_id={neuron_id}, activation_value={activation_value}")
 
-                    self.network_trace.record_neuron_state(signature, activation_value, input_neurons_signatures, output_neurons_signatures, classification_result=classification_result[i, j].item() if classification_result is not None else None, binary_classification_result=binary_classification_result[i, j].item() if binary_classification_result is not None else None)
-                except KeyError as e:
+                    cls_result = classification_result[i, j].item() if classification_result is not None else None
+                    binary_cls_result = binary_classification_result[i, j].item() if binary_classification_result is not None else None
+
+                    self.network_trace.record_neuron_state(
+                        signature, activation_value, input_neurons_signatures,
+                        classification_result=cls_result, binary_classification_result=binary_cls_result
+                    )
+                except KeyError:
                     print(f"Error: Neuron {neuron_id} not found in trace at E_{epoch}, {layer}. Continuing to next neuron.")
                     continue  # Skip to the next neuron if the current one is not found
 
