@@ -11,7 +11,7 @@ from compute import isolate_informative_states
 input_size = 20
 hidden_size = 10
 output_size = 1
-num_epochs = 1
+num_epochs = 10
 epoch_interval = [10, 20, 30]  # Initialize trace at specific epochs
 model = SimpleNN(input_size, hidden_size, output_size, num_epochs)
 network_trace = NetworkTrace(model, num_epochs, epoch_interval=None)
@@ -38,4 +38,4 @@ with torch.no_grad():
     predictions = model.predict(X_test, num_epochs - 1)
 
 # Print the network trace
-print_network_trace(model.network_trace)
+# print_network_trace(model.network_trace)
