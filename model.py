@@ -6,7 +6,7 @@ from typing import Union, List, Optional
 class TraceObject:
     def __init__(self, epoch, layer, neuron_id):
         self.signature = f"E_{epoch}-{layer}-n_{neuron_id}"
-        self.activations = []  # List to store activations for this pattern
+        self.activations = {}  # List to store activations for this pattern
         self.input_neurons = None  # To store the input neuron configuration
 
     def to_dict(self):
@@ -41,8 +41,8 @@ class NetworkTrace:
 
     def initialize_trace(self, model):
         trace = {}
-        for epoch in range(self.num_epochs):
-            self.neuron_counter = 1  # Reset neuron_counter for each epoch
+        for epoch in range(1, self.num_epochs + 1):  # Changed to start from 1 for 1-based indexing
+            self.neuron_counter = 0  # Reset neuron_counter for each epoch to 0
             epoch_key = f"E_{epoch}"
             trace[epoch_key] = {}
             self.history[epoch_key] = {}  # Initialize history for each epoch
@@ -56,7 +56,7 @@ class NetworkTrace:
                     self.neuron_counter += 1
         return trace
 
-    def record_neuron_state(self, signature, activation, input_neurons):
+    def record_neuron_state(self, signature, activation, input_neurons, batch_id):
         print(f"record_neuron_state called with signature: {signature}")
         epoch, layer, neuron_id = parse_signature(signature)
         epoch_key = f"E_{epoch}"
@@ -76,10 +76,13 @@ class NetworkTrace:
 
         # Check if the input neuron configuration already exists
         if trace_obj.input_neurons == input_neurons:
-            trace_obj.activations.append(activation)
+            if batch_id in trace_obj.activations:
+                trace_obj.activations[batch_id] = activation
+            else:
+                trace_obj.activations[batch_id] = activation
         else:
             trace_obj.input_neurons = input_neurons
-            trace_obj.activations = [activation]
+            trace_obj.activations[batch_id] = activation
 
         print(f"Updated history for {epoch_key} {layer_key} {neuron_key}: {trace_obj.to_dict()}")  # Debug statement
 
@@ -139,7 +142,7 @@ class SimpleNN(nn.Module):
             'L_output': [i for i in range(self.L_output.out_features)]  # Output layer
         }
 
-        current_index = 1
+        current_index = 0  # Changed to start from 0 for 0-based indexing
         for layer in self.neuron_ids:
             self.neural_index[layer] = (current_index, current_index + len(self.neuron_ids[layer]) - 1)
             current_index += len(self.neuron_ids[layer])
@@ -172,18 +175,17 @@ class SimpleNN(nn.Module):
 
         for i in range(batch_size):
             input_neurons_signatures = input_neurons  # Directly pass the input neuron signatures
-
+            batch_id = i
             for j in range(num_neurons):
-                neuron_id = start_index + j  # Adjusted to start from 1-based indexing
+                neuron_id = start_index + j  # Adjusted to start from 0-based indexing
                 activation_value = activations[i, j].item()
                 signature = f"E_{epoch}-{layer}-n_{neuron_id}"
 
                 try:
                     trace_obj = self.network_trace.trace[f"E_{epoch}"][layer][f"n_{neuron_id}"]
                     print(f"Recording activation: epoch={epoch}, layer={layer}, neuron_id={neuron_id}, activation_value={activation_value}")
-
                     self.network_trace.record_neuron_state(
-                        signature, activation_value, input_neurons_signatures
+                        signature, activation_value, input_neurons_signatures, batch_id
                     )
                 except KeyError:
                     print(f"Error: Neuron {neuron_id} not found in trace at E_{epoch}, {layer}. Continuing to next neuron.")
