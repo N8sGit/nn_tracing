@@ -29,9 +29,9 @@ for epoch in range(num_epochs):
     loss = criterion(outputs, targets)
     loss.backward()
     optimizer.step()
-    model.network_trace.determine_canonical_results()
 
-model.network_trace.print_history()
+model.network_trace.update_trace_object_with_statistics()
+model.network_trace.describe_tree(0)
 # Record predictions on test data
 model.eval()
 with torch.no_grad():
