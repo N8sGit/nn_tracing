@@ -41,7 +41,7 @@ class NetworkTrace:
 
     def initialize_trace(self, model):
         trace = {}
-        for epoch in range(1, self.num_epochs + 1):  # Changed to start from 1 for 1-based indexing
+        for epoch in range(0, self.num_epochs):
             self.neuron_counter = 0  # Reset neuron_counter for each epoch to 0
             epoch_key = f"E_{epoch}"
             trace[epoch_key] = {}
