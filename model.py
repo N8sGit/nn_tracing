@@ -105,6 +105,26 @@ class NetworkTrace:
         epoch_key = f"E_{epoch}"
         self.final_classification_results[epoch_key] = result
         print(f"Set final classification result for {epoch_key}: {result}")  # Debug statement
+    
+    # Handy accessor function to help access the network tree 
+    def get_trace(self, signature, depth):
+        epoch, layer, neuron = parse_signature(signature)
+        if depth == 'neuron':
+            # Get neuron associated with signature
+            return self.trace[epoch][layer].get(neuron, None)
+        elif depth == 'layer':
+            # Get layer associated with signature
+            return self.trace[epoch][layer]
+        elif depth == 'epoch':
+            # Get entire epoch
+            return self.trace[epoch]
+        return self.trace
+
+    def print_history(self):
+        for epoch, epoch_data in self.history.items():
+            print(f"Epoch: {epoch}")
+            for signature, trace_obj in epoch_data.items():
+                print(f"Signature: {signature}, Trace Object: {trace_obj.to_dict()}")
 
     def calculate_statistics(self, activations):
         activations = np.array(activations)
