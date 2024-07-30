@@ -1,6 +1,16 @@
 # Helper functions to inspect and format internal model states, outputs, etc
 import json
 
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if hasattr(obj, 'to_dict'):
+            return obj.to_dict()
+        return json.JSONEncoder.default(self, obj)
+
+def print_json_like_dump(dict):
+    print(json.dumps(dict, cls=CustomEncoder, indent=4))
+
 def print_model_parameters(neuron_ids, clusters, layer_mapping, trace):
     def print_dict(dictionary, name):
         print(f"\n{name}:")
