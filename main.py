@@ -31,11 +31,11 @@ for epoch in range(num_epochs):
     optimizer.step()
 
 model.network_trace.update_trace_object_with_statistics()
-model.network_trace.describe_tree(0)
+# model.network_trace.describe_tree(0)
 # Record predictions on test data
 model.eval()
 with torch.no_grad():
     predictions = model.predict(X_test, num_epochs - 1)
 
 # Print the network trace
-# print_network_trace(model.network_trace)
+print_network_trace(model.network_trace)
