@@ -33,6 +33,10 @@ def parse_signature(signature):
     neuron = parts[2]
     return epoch, layer, neuron
 
+def fetch_neuron_by_signature(signature, network_trace):
+    epoch, layer, neuron = parse_signature(signature)
+    return network_trace[epoch][layer][neuron]
+
 class NetworkTrace:
     def __init__(self, model, num_epochs, epoch_interval: Optional[Union[int, float, List[Union[int, float]]]] = None, drop_batches = False):
         self.num_epochs = num_epochs
@@ -92,12 +96,12 @@ class NetworkTrace:
         # Check if the input neuron configuration already exists
         if history_obj["input_neurons"] == input_neurons:
             if batch_id in history_obj["activations"]:
-                history_obj["activations"][batch_id].append(activation)
+                history_obj["activations"][batch_id] = activation
             else:
-                history_obj["activations"][batch_id] = [activation]
+                history_obj["activations"][batch_id] = activation
         else:
             history_obj["input_neurons"] = input_neurons
-            history_obj["activations"][batch_id] = [activation]
+            history_obj["activations"][batch_id] = activation
 
         print(f"Updated history for {epoch_key} {layer_key} {neuron_key}: {history_obj}")  # Debug statement
 
@@ -107,18 +111,21 @@ class NetworkTrace:
         print(f"Set final classification result for {epoch_key}: {result}")  # Debug statement
     
     # Handy accessor function to help access the network tree 
-    def get_trace(self, signature, depth):
-        epoch, layer, neuron = parse_signature(signature)
-        if depth == 'neuron':
-            # Get neuron associated with signature
-            return self.trace[epoch][layer].get(neuron, None)
-        elif depth == 'layer':
-            # Get layer associated with signature
-            return self.trace[epoch][layer]
-        elif depth == 'epoch':
-            # Get entire epoch
-            return self.trace[epoch]
+    def get_trace(self, epoch=None, layer=None, neuron_id=None):
+        if epoch is not None and layer is not None and neuron_id is not None:
+            epoch_key = f"{epoch}"
+            layer_key = layer
+            neuron_key = f"{neuron_id}"
+            return self.trace[epoch_key][layer_key].get(neuron_key, None)
+        elif epoch is not None and layer is not None:
+            epoch_key = f"{epoch}"
+            layer_key = layer
+            return self.trace[epoch_key][layer_key]
+        elif epoch is not None:
+            epoch_key = f"{epoch}"
+            return self.trace[epoch_key]
         return self.trace
+
 
     def print_history(self):
         for epoch, epoch_data in self.history.items():
@@ -135,11 +142,12 @@ class NetworkTrace:
         min_activation = np.min(activations)
         return mean_activation, median_activation, std_activation, max_activation, min_activation
 
+
     def update_trace_object_with_statistics(self):
         for epoch_key, epoch_data in self.history.items():
             for signature, history_obj in epoch_data.items():
                 epoch, layer, neuron = parse_signature(history_obj['signature'])
-                activations = [activation for batch_activations in history_obj["activations"].values() for activation in batch_activations]
+                activations = [activation for activation in history_obj["activations"].values()]
                 mean_activation, median_activation, std_activation, max_activation, min_activation = self.calculate_statistics(activations)
                 trace_obj = self.trace[epoch][layer][neuron]
                 trace_obj.input_neurons = history_obj['input_neurons']
@@ -150,18 +158,23 @@ class NetworkTrace:
                 trace_obj.min_activation = min_activation
                 print_json_like_dump(trace_obj)
                 if self.drop_batches:
-                    # If specified, drop the batch data after calculation to conserve space 
+                    # If specified, drop the historical batch data after calculation to conserve space 
                     history_obj['activations'].clear()
+    
 
 
     def describe_tree(self, epoch):
         # Get roots of tree
-        # TO DO : Generalize over specified intervals 
+        # TO DO: Generalize over specified intervals 
         # epochs_to_search = [ 'E_' + interval for interval in self.epoch_interval]
-        print('TRACE IN TREE',self.trace)
-        output_layer = self.trace['E_'+ epoch]['L_output']
-        for neuron in output_layer:
-            print('NEURON IN OUTPUT', neuron)
+        tree = []
+        print('TRACE IN TREE', self.trace)
+        output_layer = self.trace['E_' + str(epoch)]['L_output']
+        for neuron, neuron_value in output_layer.items():  # Use .items() to iterate over dictionary
+            tree.append((neuron, 'L_output'))
+            for input_neurons in neuron_value:
+                return
+                
 
 class SimpleNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_epochs):
@@ -191,7 +204,7 @@ class SimpleNN(nn.Module):
         # Input layer
         input_neurons_signatures = [f"E_{epoch}-L_input-n_{i}" for i in range(self.L_input.in_features)]
         x1 = torch.relu(self.L_input(x))
-        self.record_activations(epoch, 'L_input', x1, input_neurons_signatures)
+        self.record_activations(epoch, 'L_input', x1, input_neurons_signatures, is_input_layer=True)
 
         # Hidden layer
         input_neurons_signatures = [f"E_{epoch}-L_input-n_{i}" for i in range(self.L_input.out_features)]
@@ -209,15 +222,15 @@ class SimpleNN(nn.Module):
 
         return x3
 
-    def record_activations(self, epoch, layer, activations, input_neurons):
+    def record_activations(self, epoch, layer, activations, input_neurons, is_input_layer=False):
         batch_size, num_neurons = activations.size()
         start_index, _ = self.neural_index[layer]
 
         for i in range(batch_size):
-            input_neurons_signatures = input_neurons  # Directly pass the input neuron signatures
+            input_neurons_signatures = input_neurons if not is_input_layer else []  # No input neurons for input layer
             batch_id = i
             for j in range(num_neurons):
-                neuron_id = start_index + j  # Adjusted to start from 0-based indexing
+                neuron_id = start_index + j 
                 activation_value = activations[i, j].item()
                 signature = f"E_{epoch}-{layer}-n_{neuron_id}"
 
