@@ -4,10 +4,7 @@ import torch.optim as optim
 from data import X_train, y_train, X_test
 from model import SimpleNN, NetworkTrace
 # from plot import visualize_diff, visualize_filtered_activations, calculate_overlap_and_divergence, plot_model_skeleton
-from inspection import print_network_trace, print_all_weights, network_trace_to_dict
-from compute import isolate_informative_states
-from plot import visualize_network, create_visualization_data, process_network_trace
-
+from inspection import print_network_trace, print_all_weights
 # Initialize the model
 input_size = 20
 hidden_size = 10
