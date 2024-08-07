@@ -4,14 +4,12 @@ import torch.optim as optim
 from data import X_train, y_train, X_test
 from model import SimpleNN, NetworkTrace
 # from plot import visualize_diff, visualize_filtered_activations, calculate_overlap_and_divergence, plot_model_skeleton
-from inspection import print_network_trace, network_trace_to_dict
-from compute import isolate_informative_states
-
+from inspection import print_network_trace, print_all_weights
 # Initialize the model
 input_size = 20
 hidden_size = 10
 output_size = 1
-num_epochs = 10
+num_epochs = 1
 epoch_interval = [10, 20, 30]  # Initialize trace at specific epochs
 model = SimpleNN(input_size, hidden_size, output_size, num_epochs)
 network_trace = NetworkTrace(model, num_epochs, epoch_interval=None)
@@ -31,7 +29,6 @@ for epoch in range(num_epochs):
     optimizer.step()
 
 model.network_trace.update_trace_object_with_statistics()
-# model.network_trace.describe_tree(0)
 # Record predictions on test data
 model.eval()
 with torch.no_grad():
@@ -39,3 +36,6 @@ with torch.no_grad():
 
 # Print the network trace
 print_network_trace(model.network_trace)
+
+
+print_all_weights(model.network_trace)
