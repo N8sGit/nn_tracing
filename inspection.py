@@ -63,3 +63,15 @@ def network_trace_to_dict(network_trace):
 def print_network_trace(network_trace):
     trace_dict = network_trace_to_dict(network_trace)
     print(json.dumps(trace_dict, indent=2))
+
+def print_all_weights(network_trace):
+    trace = network_trace.get_trace()
+    for epoch, layers in trace.items():
+        print(f"Epoch: {epoch}")
+        for layer, _ in layers.items():
+            if layer in network_trace.weights[epoch] and network_trace.weights[epoch][layer] is not None:
+                print(f"Layer: {layer}")
+                print(f"Weights: {network_trace.weights[epoch][layer]}")
+            else:
+                print(f"Layer: {layer} has no recorded weights.")
+        print("-" * 50)
