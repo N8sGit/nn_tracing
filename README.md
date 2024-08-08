@@ -35,8 +35,8 @@ The developer can modify various settings in
 python main.py
 `` to control the behavior of the core ``Network_Trace`` class. Such as:
 
-- ``epoch_intervals``: Types: [Optional] ``int``, ``List[int]``, defaults to ``None``. Controls the frequency per epoch at which the scanning logic is applied during model training. If an ``int`` is provided, scans will occur at every nth interval. If ``List[int]`` is provided, scans will occur only at those specified intervals. If no value is provided, scans will occur during every epoch. **Note: Not Recommended for large models**: 
-- `drop_batches`: Types: [Optional] ``bool`` defaults to ``True``. If set to ``False`` intermediate metadata will be dropped after computing final metrics. This is to help reduce storage footprint. 
+- ``epoch_intervals``: Types: ``[Optional]`` ``int``, ``List[int]``, defaults to ``None``. Controls the frequency per epoch at which the scanning logic is applied during model training. If an ``int`` is provided, scans will occur at every nth interval. If ``List[int]`` is provided, scans will occur only at those specified intervals. If no value is provided, scans will occur during every epoch. **Note: Not Recommended for large models**: 
+- `drop_batches`: Types: ``[Optional]`` ``bool`` defaults to ``True``. If set to ``True`` intermediate metadata will be dropped after computing final metrics. This is to help reduce storage footprint. Otherwise, intermediate metadata will be conserved across the training lifecycle. 
 
 
 ... TBC
