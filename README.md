@@ -106,6 +106,7 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Draft of white paper 
 - Add support for multi-classification ANNs
 - Continue to research and improve on the mathematical analysis used to select data
+- Investigate ways to optimize storage and general overhead
 - Generalize into an implementation-agnostic abstract specification that works with as many model types as possible 
 - Improve usage (either by providing better scripting logic so sourcefiles don't need to be manually modified and can be set via terminal commands, or by providing a GUI )
 - Add benchmarks to measure overhead
