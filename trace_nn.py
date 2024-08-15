@@ -118,22 +118,22 @@ class NetworkTrace:
         
         history_obj["activations"][batch_id] = activation
 
-        print(f"Updated history for {epoch_key} {layer_key} {neuron_key}: {history_obj}")  # Debug statement
+        print(f"Updated history for {epoch_key} {layer_key} {neuron_key}: {history_obj}") 
 
     def record_layer_trace(self, epoch, layer_name, weights, biases):
         epoch_key = f"E_{epoch}"
         self.weights[epoch_key][layer_name] = weights
         self.biases[epoch_key][layer_name] = biases
-        print(f"Recorded weights and biases for {layer_name} in {epoch_key}")  # Debug statement
-
+        print(f"Recorded weights and biases for {layer_name} in {epoch_key}")  
+    
     def set_final_classification_result(self, epoch, result):
+        # Note: In future, we may want to associate results with batch numbers and not flatten them like such for simplicity
         epoch_key = f"E_{epoch}"
-        self.final_classification_results[epoch_key] = result
-        print(f"Set final classification result for {epoch_key}: {result}")  # Debug statement
-
-    def identify_salient_paths(self):
-        return 
-
+        # Flatten the result tensor to a 1D list
+        flattened_result = result.view(-1).tolist()
+        self.final_classification_results[epoch_key] = flattened_result
+        print(f"Set final classification result for {epoch_key}: {flattened_result}")  
+        
     # Handy accessor function to help access the network tree 
     def get_trace(self, epoch=None, layer=None, neuron_id=None):
         if epoch is not None and layer is not None and neuron_id is not None:
