@@ -90,6 +90,7 @@ In the future I hope to add a UI to make configuration more accessible.
 While the ideal goal of this project is to have an abstract specification that works with any model, the reality at the moment is that the code in its current state is probably closely coupled to the exact parameters of the SimpleNN class and will break if exposed to anything too fundamentally different in structure. Once I get a good proof of concept, hopefully I will figure out how to make this work for all types of models. 
 
 
+
 ## Dependencies
 
 For a list of required modules, see:

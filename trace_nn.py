@@ -133,8 +133,7 @@ class NetworkTrace:
         flattened_result = result.view(-1).tolist()
         self.final_classification_results[epoch_key] = flattened_result
         print(f"Set final classification result for {epoch_key}: {flattened_result}")  
-    
-
+        
     # Handy accessor function to help access the network tree 
     def get_trace(self, epoch=None, layer=None, neuron_id=None):
         if epoch is not None and layer is not None and neuron_id is not None:
