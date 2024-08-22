@@ -4,9 +4,9 @@ from trace_nn import NetworkTrace
 from typing import Union, List, Optional
 
 
-class SimpleNN(nn.Module):
+class TracableNN(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_epochs, epoch_interval: Optional[Union[int, float, List[Union[int, float]]]] = None,):
-        super(SimpleNN, self).__init__()
+        super(TracableNN, self).__init__()
         self.L_input = nn.Linear(input_size, hidden_size)
         self.L_hidden_1 = nn.Linear(hidden_size, hidden_size)
         self.L_output = nn.Linear(hidden_size, output_size)

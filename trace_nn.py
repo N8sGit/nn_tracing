@@ -116,7 +116,7 @@ class NetworkTrace:
         self.weights[epoch_key][layer_name] = weights
         self.biases[epoch_key][layer_name] = biases
         print(f"Recorded weights and biases for {layer_name} in {epoch_key}")  
-    
+        
     def set_final_classification_result(self, epoch, result):
         # Note: In future, we may want to associate results with batch numbers and not flatten them like such for simplicity
         epoch_key = f"E_{epoch}"
