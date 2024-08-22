@@ -34,18 +34,15 @@ class SimpleNN(nn.Module):
         # Input layer
         x1 = torch.relu(self.L_input(x))
         if self.should_execute(epoch):
-            self.record_neural_states(epoch, 'L_input', x1)
             self.record_layer_state(epoch, 'L_input')
         # Hidden layer
         x2 = torch.relu(self.L_hidden_1(x1))
         if self.should_execute(epoch):
-            self.record_neural_states(epoch, 'L_hidden_1', x2)
             self.record_layer_state(epoch, 'L_hidden_1')
         # Output layer
         x3 = self.sigmoid(self.L_output(x2))
         if self.should_execute(epoch):
             final_classification_result = (x3 >= 0.5).float()  # Get final classification result
-            self.record_neural_states(epoch, 'L_output', x3)
             self.record_layer_state(epoch, 'L_output')
         # Set final classification result for the epoch
             self.network_trace.set_final_classification_result(epoch, final_classification_result)
@@ -64,12 +61,11 @@ class SimpleNN(nn.Module):
     def record_layer_state(self, epoch, layer):
         weights = self.get_layer_weights(layer)
         biases = self.get_layer_bias(layer)
-        print(f'Weights in record_layer_state for {layer}:', weights)
-        print(f'Biases in record_layer_state for {layer}:', biases)
-        # Record weights and biases in the network trace
+        if weights is None or biases is None:
+            print(f"Warning: No weights or biases found for {layer} at epoch {epoch}")
         self.network_trace.record_layer_trace(epoch, layer, weights, biases)
 
-    def record_neural_states(self, epoch, layer, activations):
+    def record_model_states(self, epoch, layer, activations):
         batch_size, num_neurons = activations.size()
         start_index, _ = self.neural_index[layer]
 
@@ -98,6 +94,24 @@ class SimpleNN(nn.Module):
         state_dict = self.state_dict()
         weights = state_dict[f'{layer_name}.weight']
         return weights
+    
+    def trace_inference(self, x, epoch):
+        self.eval()  # Ensure the model is in evaluation mode
+        with torch.no_grad():
+            # Input layer
+            x1 = torch.relu(self.L_input(x))
+            self.record_model_states(epoch, 'L_input', x1)
+
+            # Hidden layer
+            x2 = torch.relu(self.L_hidden_1(x1))
+            self.record_model_states(epoch, 'L_hidden_1', x2)
+
+            # Output layer
+            x3 = self.sigmoid(self.L_output(x2))
+            self.record_model_states(epoch, 'L_output', x3)
+
+            # Optionally, return the final output if needed
+            return x3
 
     def predict(self, x, epoch):
         self.eval()
