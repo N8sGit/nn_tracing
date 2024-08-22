@@ -1,5 +1,4 @@
 import torch
-from typing import Union, List, Optional
 import numpy as np
 from inspection import print_json_like_dump
 from helpers import set_model_level_label, parse_signature
@@ -42,9 +41,8 @@ class TraceObject:
         }
 
 class NetworkTrace:
-    def __init__(self, model, num_epochs, epoch_interval: Optional[Union[int, float, List[Union[int, float]]]] = None, drop_batches=False):
+    def __init__(self, model, num_epochs, drop_batches=False):
         self.num_epochs = num_epochs
-        self.epoch_interval = epoch_interval
         self.drop_batches = drop_batches
         self.history = {}
         self.final_classification_results = {}  # Store final classification results at the epoch level
@@ -52,13 +50,6 @@ class NetworkTrace:
         self.weights = self.initialize_weights(model)
         self.biases = self.initialize_biases(model)
         print(f"Initialized trace: {self.trace}")
-
-    def should_execute(self, epoch):
-        if isinstance(self.epoch_interval, list):
-            return epoch in self.epoch_interval
-        elif self.epoch_interval is not None:
-            return epoch % self.epoch_interval == 0
-        return True
 
     def initialize_trace(self, model):
         trace = {}
