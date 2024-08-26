@@ -226,7 +226,7 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Add benchmarks to measure overhead (A/B testing)
 
 ## Attributions:
-When the idea for this project first occured to me, I bounced it ChatGPT as I have come to find using it as a sonnding board  is often a helpful way to flesh thoughts out. My initial prompt was very high level and abstract and I did not ask for code. But to my surprise it began to generate code for it. At that point I was almost as interested to see if the model could generate code for my idea as I was in the idea itself. 
+When the idea for this project first occured to me, I bounced it off ChatGPT as I have come to find using it as a sonnding board  is often a helpful way to flesh thoughts out. My initial prompt was very high level and abstract and I did not ask for code. But to my surprise it began to generate code for it. At that point I was almost as interested to see if the model could working generate code for my idea as I was in the idea itself. 
 
 While ChatGPT has a share conversation feature, I was getting this error "Sharing conversations with images or audio is not yet supported", and so to share the whole chat I would have to go through a lengthier process of exporting my entire chat history, sorting through a big JSON object of the conversations, finding that session and making it presentable with all its markdown and structure. 
 
