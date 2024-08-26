@@ -25,7 +25,7 @@ class TracableNN(nn.Module):
             'L_output': [i for i in range(self.L_output.out_features)]  # Output layer
         }
 
-        current_index = 0  # Start with zero-based indexing
+        current_index = 0 
         for layer in self.neuron_ids:
             self.neural_index[layer] = (current_index, current_index + len(self.neuron_ids[layer]) - 1)
             current_index += len(self.neuron_ids[layer])
@@ -48,7 +48,7 @@ class TracableNN(nn.Module):
             self.network_trace.set_final_classification_result(epoch, final_classification_result)
 
         return x3
-    
+    # This method determines when the recording logic should execute depending on various conditions 
     def should_execute(self, epoch):
         if self.epoch_interval == -1:
             return epoch == self.num_epochs
