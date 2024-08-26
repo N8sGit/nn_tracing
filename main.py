@@ -3,20 +3,19 @@ import torch.nn as nn
 import torch.optim as optim
 import pickle
 from data import X_test
-from model import SimpleNN, NetworkTrace
+from model import TracableNN, NetworkTrace
+from model_config import config
 from inspection import print_network_trace
 
-# Dropout phase 
-# dense - dropout layer -
 
 def main():
     # Initialize the model
-    input_size = 20
-    hidden_size = 10
-    output_size = 1
-    num_epochs = 100
-    epoch_interval = [10, 20, 30]  # Initialize trace at specific epochs
-    model = SimpleNN(input_size, hidden_size, output_size, num_epochs)
+    input_size = config['input_size']
+    hidden_size = config['hidden_size']
+    output_size = config['output_size']
+    num_epochs = config['num_epochs']
+    epoch_interval = config['epoch_interval']  # Initialize trace at specific epochs
+    model = TracableNN(input_size, hidden_size, output_size, num_epochs)
     network_trace = NetworkTrace(model, num_epochs)
 
     # Initialize the optimizer and loss function
@@ -42,9 +41,11 @@ def main():
 
     # Print the network trace
     print_network_trace(model.network_trace)
-    # Export the network trace
+    # Export the network_trace
     with open('outputs/network_trace.pkl', 'wb') as f:
         pickle.dump(model.network_trace, f)
+    # Save the model's state   
+    torch.save(model.state_dict(), 'outputs/trained_model_full.pth')
 
 if __name__ == "__main__":
     main()

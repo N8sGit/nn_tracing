@@ -3,7 +3,7 @@ import numpy as np
 from inspection import print_json_like_dump
 from helpers import set_model_level_label, parse_signature
 
-class TraceObject:
+class NeuronTrace:
     def __init__(self, epoch, layer, neuron_id):
         self.signature = f"E_{epoch}-{layer}-n_{neuron_id}"
         self.input_neurons = None  # To store the input neuron configuration
@@ -64,7 +64,7 @@ class NetworkTrace:
                 trace[epoch_key][layer_name] = {}
                 for i in range(len(neurons)):
                     neuron_key = f"n_{self.neuron_counter}"
-                    trace[epoch_key][layer_name][neuron_key] = TraceObject(epoch, layer_name, self.neuron_counter)
+                    trace[epoch_key][layer_name][neuron_key] = NeuronTrace(epoch, layer_name, self.neuron_counter)
                     self.neuron_counter += 1
         return trace
 
@@ -116,7 +116,7 @@ class NetworkTrace:
         self.weights[epoch_key][layer_name] = weights
         self.biases[epoch_key][layer_name] = biases
         print(f"Recorded weights and biases for {layer_name} in {epoch_key}")  
-    
+        
     def set_final_classification_result(self, epoch, result):
         # Note: In future, we may want to associate results with batch numbers and not flatten them like such for simplicity
         epoch_key = f"E_{epoch}"
