@@ -11,6 +11,7 @@
 - [Dependencies](#dependencies)
 - [Roadmap](#roadmap)
 - [Attributions](#attributions)
+- [Collaborate](#collaborate)
 - [Note on terminology](#terminology)
 ## Overview
 
@@ -211,6 +212,9 @@ For a list of required modules, see:
 ``
 python requirements.txt 
 ``
+A few libraries not listed in the requirements.txt
+``pandas                    2.2.2 ``
+``adjusttext                1.2.0 ``
 
 ## Roadmap
 
@@ -230,10 +234,12 @@ When the idea for this project first occured to me, I bounced it ChatGPT as I ha
 
 While ChatGPT has a share conversation feature, I was getting this error "Sharing conversations with images or audio is not yet supported", and so to share the whole chat I would have to go through a lengthier process of exporting my entire chat history, sorting through a big JSON object of the conversations, finding that session and making it presentable with all its markdown and structure. 
 
-Since this involves having to download my my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of transparency but also because I think it is an interesting document. If you are intrested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable insight and conceptual recommendations. 
+Since this involves having to download my my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of academic transparency but also because I think it is an interesting document. If you are intrested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable feedback and conceptual recommendations. 
 
 When you look at this chat, it becomes clear when the AI reaches its limit and by comparing the code it generates to this codebase you can see where the two depart. Without using AI generated code this project would have probably taken me 3-6 months to do completely manually. It's amazing how quickly it allowed me to bootstrap my ideas, try out many different approaches at reduced effort and cost, and vastly accelerate knowledge production.
 
+## Collaborate: 
+If you would like to contribute to this project please reach out! I could especially use help from people with a strong background in data analysis and linear algebra. I haven't yet 100% realized my vision for the project, and before I open the doors up to open sourcing I would like to at least refactor a few areas to make it less coupled on one model. Hopefully this time will come soon though!
 
 ## Terminology: 
 The term "staining" came to mind when I first thought of this idea. It is meant to invoke the tissue staining methods used in histology by biologists studying cells. They add certain biochemical markers to tissues to detect various cellular differences. Since this project tries to isolate and color code different structures in artificial neural networks, the metaphor felt apt. I've grown less attached to this imagery over time, but you may still see references to a "staining algorithim" here and there.
