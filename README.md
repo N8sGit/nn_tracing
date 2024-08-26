@@ -123,8 +123,8 @@ The core of this library. It is effectively a large lookup table with a collecti
 
  While I was studying how neural networks get trained in libraries such as TensorFlow and PyTorch, I realized that they had a very peculiar geometry. They are, in essence, hypercubes, 4 dimensional cubes, where-- 
 - the 4th dimension is time (captured by epochs)
-- the 3rd dimension is the network layers 
-- The 2nd dimension is stacks of neurons in the layers 
+- the 3rd dimension is the network layers together, the whole model
+- The 2nd dimension is stacks of neurons in the layers, or an individual layer  
 - The 1st dimension is the rows of neurons in a layer
 - The 0th dimension is the individual neuron "points" in space
 
