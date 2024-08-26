@@ -158,7 +158,7 @@ Various properties that are appropriate to the given level can be placed on it. 
 I'm still playing around with what kind of data should go where, so expect this layout to change.
 
 ## Analysis
-Everything comes together in ``analysis.ipynb``.  This is where the traced model is outputedded and prepared for analysis
+Everything comes together in ``analysis.ipynb``.  This is where the traced model is outputed and prepared for analysis
 
 - **Meta-modeling**
 The next thing that comes to mind is to how to actually analyze the model's metadata using machine learning and other types of analysis.
@@ -192,12 +192,6 @@ Models and network traces will be saved to  ``/outputs``. Despite ``Network_Trac
 
 See [Roadmap](#roadmap) for more information about the project's current and hoped for eventual capabilities.
 
-The developer can modify various settings in 
-``
-python main.py
-`` to control the behavior of the core ``Network_Trace`` class. Such as:
-
-
 In the future I hope to add a UI to make configuration more accessible. 
 
 
@@ -213,8 +207,8 @@ For a list of required modules, see:
 python requirements.txt 
 ``
 A few libraries not listed in the requirements.txt
-``pandas                    2.2.2 ``
-``adjusttext                1.2.0 ``
+- ``pandas                    2.2.2 ``
+- ``adjusttext                1.2.0 ``
 
 ## Roadmap
 
@@ -234,7 +228,7 @@ When the idea for this project first occured to me, I bounced it ChatGPT as I ha
 
 While ChatGPT has a share conversation feature, I was getting this error "Sharing conversations with images or audio is not yet supported", and so to share the whole chat I would have to go through a lengthier process of exporting my entire chat history, sorting through a big JSON object of the conversations, finding that session and making it presentable with all its markdown and structure. 
 
-Since this involves having to download my my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of academic transparency but also because I think it is an interesting document. If you are intrested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable feedback and conceptual recommendations. 
+Since this involves having to download my my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of academic transparency but also because I think it is an interesting document. If you are interested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable feedback and conceptual recommendations. 
 
 When you look at this chat, it becomes clear when the AI reaches its limit and by comparing the code it generates to this codebase you can see where the two depart. Without using AI generated code this project would have probably taken me 3-6 months to do completely manually. It's amazing how quickly it allowed me to bootstrap my ideas, try out many different approaches at reduced effort and cost, and vastly accelerate knowledge production.
 
