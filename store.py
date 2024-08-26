@@ -1,1 +1,0 @@
-# Store and save results by serializing and hashing results for efficiency. 
