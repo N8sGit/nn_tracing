@@ -9,13 +9,14 @@
 - [Objects](#objects)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
+- [Files](#files)
 - [Roadmap](#roadmap)
 - [Attributions](#attributions)
 - [Collaborate](#collaborate)
 - [Note on terminology](#terminology)
 ## Overview
 
-If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **Objects, Usage, and Dependencies** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
+If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **Objects, Usage, and Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
 
 #### What is this?
 
@@ -176,8 +177,6 @@ Since we don't really know what a meaningful pattern looks like, it's hard to di
 TBC... 
 
 
-
-
 ## Usage
 
 
@@ -198,7 +197,7 @@ In the future I hope to add a UI to make configuration more accessible.
 
 
 ## Modifying the ANN model
-While the ideal goal of this project is to have an abstract specification that works with any model, the reality at the moment is that the code in its current state is probably closely coupled to the exact parameters of the ``TracableNN`` class and will break if exposed to anything too fundamentally different in structure. Once I get a good proof of concept, hopefully I will figure out how to make this work for all types of models. 
+While the ideal goal of this project is to have an abstract specification that works with any model, the reality at the moment is that the code in its current state is probably closely coupled to the exact parameters of the ``TracableNN`` class and will break if exposed to anything too fundamentally different in layout. Once I get a good proof of concept, hopefully I will figure out how to make this work for all types of models. 
 
 
 
@@ -211,6 +210,26 @@ python requirements.txt
 A few libraries not listed in the requirements.txt
 - ``pandas                    2.2.2 ``
 - ``adjusttext                1.2.0 ``
+
+## Files
+
+- ``data.py``: This is where you would set up the data for the model. I am currently using a synthetic binary classification data set using sci-kit learn's make_classification function. Originally I thought it really didn't matter what sort of data was being used, only that it was simple at first. Now I realize I probably should have chosen a more semantic data set as this could have made it easier to identify meaningful states. I am planning a major overhaul to this part of the code however .
+
+- ``main.py``: the main process. Everything comes together here. The model is initialized and declared, the data imported and provided to it, and the training loop executed. Results are then saved away to ``/outputs`` to be analyzed elsewhere.
+
+- ``model.py``: This is where TracableNN, the model wrapper, is defined and the tracing logic mounted.
+
+- ``model_config.py``: A place to globally manage model configuration. Useful since we may need to refrence the same parameters on more than one occasion.
+
+- ``trace_nn.py``: Where the tracing logic is defined. The NeuronTrace and NetworkTrace classes live here.
+
+- ``analysis.ipynb``: Where I imagine most users will spend most of their time once I create a better pipeline for integrating and mounting any given model for tracing. This jupyter notebook will cast the network trace into a dataframe and is where various analyses can be conducted.
+
+- ``plot.py`` Various functions related to plotting visualizations. Currently not seeing much use as I revisit the whole idea about what appraoch is best for capturing meaningful information about model metadata.
+
+- ``helpers.py``: Helper functions that make certain routine activities easier. Currently there are functions here that make navigating the string to integer casting and vice versa that is necessary to do hash lookups efficiently.
+
+- ``inspection.py``: Various debugging and observation tools for printing out data when needed.
 
 ## Roadmap
 
