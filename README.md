@@ -5,7 +5,7 @@
 ## Table of Contents
 - [Overview](#overview)
 - [Inspiration & Rationale](#inspiration--rationale)
-- [Objects](#objects)
+- [API Reference](#api--reference)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
 - [Files](#files)
@@ -15,7 +15,7 @@
 - [Note on terminology](#terminology)
 ## Overview
 
-If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **Objects, Usage, Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
+If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **API Reference, Usage, Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
 
 #### What is this?
 
@@ -79,7 +79,7 @@ Conceivable benefits might include:
 The point is it's narrow-minded to not even try. Who knows where it could lead?
 
 
-## Objects
+## API Reference
 
 There are really only three key components to this codebase. The ``TraceableNN``, ``NeuronTrace``, and ``NetworkTrace`` classes.
 
