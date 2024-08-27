@@ -5,7 +5,7 @@
 ## Table of Contents
 - [Overview](#overview)
 - [Inspiration & Rationale](#inspiration--rationale)
-- [API Reference](#api--reference)
+- [API Reference](#api-reference)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
 - [Files](#files)
