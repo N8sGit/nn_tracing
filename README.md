@@ -53,7 +53,7 @@ However, IRL NNs have the benefit of being physical. As such, there is something
 
 The computer has no concept of a "network", all it "sees" are numbers. There is no geometry to the system that we can trace out. So any framework that we would want to map of an ANN (or similar) has to be imposed onto those numbers and carefully deduced from them.
 
-The good thing is, we know *for a fact* that the numbers of a model are *not random*, despite at first glance appearing meaningless. If the model can perform tasks or make predictions better than chance, it stands to reason that there are indeed patterns in those numbers corresponding to its functional behaviors. If it were completely random, its outputs would chaotic and unusable. 
+The good thing is, we know *for a fact* that the numbers of a model are *not random*, despite at first glance appearing meaningless. If the model can perform tasks or make predictions better than chance, it stands to reason that there are indeed patterns in those numbers corresponding to its functional behaviors. If it were completely random, its outputs would be chaotic and unusable. 
 
 So we can at least be assured that there are indeed *patterns to discover* in that mess of numbers, if we can find the right framework to bring them out.
 
