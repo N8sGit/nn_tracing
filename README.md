@@ -225,7 +225,7 @@ A few libraries not listed in the requirements.txt
 
 - ``analysis.ipynb``: Where I imagine most users will spend most of their time once I create a better pipeline for integrating and mounting any given model for tracing. This jupyter notebook will cast the network trace into a dataframe and is where various analyses can be conducted.
 
-- ``plot.py`` Various functions related to plotting visualizations. Currently not seeing much use as I revisit the whole idea about what appraoch is best for capturing meaningful information about model metadata.
+- ``plot.py`` Various functions related to plotting visualizations. Currently not seeing much use as I revisit the whole idea about what approach is best for capturing meaningful information about model metadata.
 
 - ``helpers.py``: Helper functions that make certain routine activities easier. Currently there are functions here that make navigating the string to integer casting and vice versa that is necessary to do hash lookups efficiently.
 
