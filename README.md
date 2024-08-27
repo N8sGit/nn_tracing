@@ -5,7 +5,6 @@
 ## Table of Contents
 - [Overview](#overview)
 - [Inspiration](#inspiration)
-- [Concepts](#concepts)
 - [Objects](#objects)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
