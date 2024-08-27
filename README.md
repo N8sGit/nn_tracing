@@ -33,7 +33,7 @@ What this project aims to do is to take a tour through an artificial neural netw
 
 The ultimate aspiration of the project is to develop a method to identify meaningful internal structures in the model associated with its final outputs, so that we can know precisely what parameters and neurons contributed to that outcome in exactly what ways. 
 
-The next step is to reflexively apply machine learning algorithims to the model's metadata, to identify meaningful categories of data and create something like a "mental map" of the model's internal concept of its output. (If this sounds far out, read out)
+The next step is to reflexively apply machine learning algorithims to the model's metadata, to identify meaningful categories of data and create something like a "mental map" of the model's internal concept of its output. (If this sounds far out, read on)
 
 ## Inspiration & Rationale
 
