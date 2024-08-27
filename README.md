@@ -64,7 +64,7 @@ Some machine learning enthusiasts may question the value of attempting to probe 
  But in general, there are probably at least 4 main reasons for disinterest in model transparency.
 
 1. The focus has been on getting deep learning models to do interesting things. There is no point trying to figure out how they come to their conclusions before they produce interesting results. Dedicating resources to model transparency before getting them to do anything interesting puts it backwards. Model transparency is clearly a later step to come after we've done the "real work" of getting models to solve interesting problems.
-2. Much can be inferred only by looking at on I/O relationships. A grasp on throughputs is not strictly necessary and does not prohibit work on NNs
+2. Much can be inferred only by looking at I/O relationships. A grasp on throughputs is not strictly necessary and does not prohibit work on NNs
 3. Even simple deep learning models produce extremely large quantities of data as side-effects of training and inference, and moreover, that data is not at all designed for human-readability. Indeed, it's rather hostile to it.
 4. It wouldn't be worth the trouble.
 
