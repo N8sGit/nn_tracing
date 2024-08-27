@@ -15,7 +15,7 @@
 - [Note on terminology](#terminology)
 ## Overview
 
-If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **Objects, Usage, and Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
+If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **Objects, Usage, Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
 
 #### What is this?
 
