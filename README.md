@@ -4,7 +4,7 @@
 
 ## Table of Contents
 - [Overview](#overview)
-- [Inspiration](#inspiration)
+- [Inspiration & Rationale](#inspiration--rationale)
 - [Objects](#objects)
 - [Usage](#usage)
 - [Dependencies](#dependencies)
