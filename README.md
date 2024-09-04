@@ -13,6 +13,7 @@
 - [Attributions](#attributions)
 - [Collaborate](#collaborate)
 - [Note on terminology](#terminology)
+- [Interesting Developments](#developments)
 ## Overview
 
 If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **API Reference, Usage, Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
@@ -257,3 +258,12 @@ If you would like to contribute to this project please reach out! I could especi
 
 ## Terminology: 
 The term "staining" came to mind when I first thought of this idea. It is meant to invoke the tissue staining methods used in histology by biologists studying cells. They add certain biochemical markers to tissues to detect various cellular differences. Since this project tries to isolate and color code different structures in artificial neural networks, the metaphor felt apt. I've grown less attached to this imagery over time, but you may still see references to a "staining algorithim" here and there.
+
+## Developments 
+Model explainability is an active field. Here I will document interesting developments in the field and comment on how they pretain to this project. 
+
+- **Komolgorov-Arnold Networks**: Perhaps one of the more exciting developments I've come across recently, [KANs](https://github.com/mintisan/awesome-kan) are a fresh approach to model architecture overall. They differ from Multi-Layer Perceptrons with their big innovation being that they do away with matrices of weights and fixed activation functions on nodes altogether and instead use learnable activation functions on edges. The neurons, or nodes, in KANs simply sum together a linear combination of univariate continous functions that collectively represent continous multivariate functions thanks to the Komolgorov-Ardnold Representation Theorem.  The result of this elegantly streamlined mathematics is a less messy computational environment and a more streamlined architecture for tracking.
+
+How do KANs affect this current project? I don't see why the the methodology proposed in this codebase must conflict with KANs. How the states are traced would change, but the value of tracing and plotting that data would remain the same. Since KANs are said to result in simplified computational graphs, if anything they should just complement my approach. However it'll be some time before I can figure out how to map KANs alongside more traditional MLPs.
+
+- **Neuron Tracing and Active Learning Environment (NeuroTrALE)** : [NeuroTrALE](https://www.ll.mit.edu/sites/default/files/other/doc/2023-02/TVO_Technology_Highlight_45_NeuroTrALE.pdf) is a new open source framework put out by MIT's Lincoln Laboratory that uses supercomputers and machine learning to map real (biological) brain networks. I suspect that deep down there is some kind of analogy to be found in what they are successfully doing to map biological NNs. So it may be worth it to explore their line of thinking for inspiration. 
