@@ -18,6 +18,8 @@
 
 If you are looking for more technical details about the API and how to navigate, use, and run the code, jump to the **API Reference, Usage, Dependencies, & Files** sections. For a more high level exposition on the project and its motivations and aspirations, read on.
 
+For a screen recording of a presentation I gave on this project, check out [https://www.youtube.com/watch?v=vsOXrBCX7h4](https://www.youtube.com/watch?v=vsOXrBCX7h4)
+
 #### What is this?
 
 nn_tracing (working title) is a experiment in explainable AI that aims to improve model interperability through model transparency. The basic pitch is this: most approaches to explainable AI involves tracking and representing metrics *about* the model. The goal here is to track and represent metrics *of* the model *itself*. 
