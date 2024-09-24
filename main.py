@@ -10,9 +10,6 @@ from model_config import ModelConfigurator
 
 def main():
     # Extract configurations specific to the Iris dataset
-    input_size = config_iris['input_size']
-    hidden_size = config_iris['hidden_size']
-    output_size = config_iris['output_size']
     num_epochs = config_iris['num_epochs']
     layer_names = config_iris['layer_names']
 
