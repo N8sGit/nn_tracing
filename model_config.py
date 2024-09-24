@@ -21,6 +21,8 @@ config_iris = {
     'output_size': 3,
     'num_samples': 150,
     'num_epochs': 20,
+    'batch_size': 16,
+    'inference_batch_size': 30,
     'epoch_interval': [10, 20],
     'layer_names': {
         'input': 'L_input',
