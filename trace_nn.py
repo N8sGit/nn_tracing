@@ -1,172 +1,196 @@
 import torch
-import numpy as np
-from inspection import print_json_like_dump
-from helpers import set_model_level_label, parse_signature
+import pandas as pd
 
 class NeuronTrace:
-    def __init__(self, epoch, layer, neuron_id):
-        self.signature = f"E_{epoch}-{layer}-n_{neuron_id}"
-        self.input_neurons = None  # To store the input neuron configuration
-        self.activation_metrics = {
-            'mean': None,
-            'median': None,
-            'std': None,
-            'max': None,
-            'min': None
-        }
-        self.bias_term_metrics = {
-            'mean': None,
-            'median': None,
-            'std': None,
-            'max': None,
-            'min': None
-        }
-        self.weight_metrics = {
-            'mean': None,
-            'median': None,
-            'std': None,
-            'max': None,
-            'min': None
-        }
-        self.breadcrumbs = []  # Store breadcrumbs as a list of input neuron signatures
+    def __init__(self, global_neuron_id, epoch, layer_name, weight=None, bias=None):
+        self.global_neuron_id = global_neuron_id  # Unique and universal ID
+        self.epoch = epoch
+        self.layer_name = layer_name
+        self.weight = weight  # Tensor of weights from previous layer neurons
+        self.bias = bias
+        self.activations = []  # List to store activations per sample
+        self.activation_sum = 0.0
+        self.activation_squared_sum = 0.0
+        self.activation_max = float('-inf')
+        self.activation_min = float('inf')
+        self.count = 0
 
-    def to_dict(self):
+    def update_activation(self, activation_values):
+        for activation_value in activation_values:
+            self.activation_sum += activation_value
+            self.activation_squared_sum += activation_value ** 2
+            self.count += 1
+            self.activation_max = max(self.activation_max, activation_value)
+            self.activation_min = min(self.activation_min, activation_value)
+            self.activations.extend(activation_values)
+    
+    def get_activation_statistics(self):
+        if self.count == 0:
+            return {
+                'mean': 0,
+                'std_dev': 0,
+                'max': None,
+                'min': None,
+                'count': 0
+            }
+        mean = self.activation_sum / self.count
+        variance = (self.activation_squared_sum / self.count) - (mean ** 2)
+        std_dev = variance ** 0.5
         return {
-            "input_neurons": self.input_neurons,
-            "activation_metrics": self.activation_metrics,
-            "bias_term_metrics": self.bias_term_metrics,
-            "weight_metrics": self.weight_metrics,
-            "breadcrumbs": self.breadcrumbs,
-            "signature": self.signature
+            'mean': mean,
+            'std_dev': std_dev,
+            'max': self.activation_max,
+            'min': self.activation_min,
+            'count': self.count
         }
+
+import torch
+import pandas as pd
 
 class NetworkTrace:
-    def __init__(self, model, num_epochs, drop_batches=False):
-        self.num_epochs = num_epochs
-        self.drop_batches = drop_batches
-        self.history = {}
-        self.final_classification_results = {}  # Store final classification results at the epoch level
-        self.trace = self.initialize_trace(model)
-        self.weights = self.initialize_weights(model)
-        self.biases = self.initialize_biases(model)
-        print(f"Initialized trace: {self.trace}")
+    def __init__(self):
+        self.trace = {}
+        self.layer_order = []
+        self.global_neuron_id_map = {}
+        self.global_neuron_counter = 0
+        self.predictions = {}
 
-    def initialize_trace(self, model):
-        trace = {}
-        for epoch in range(0, self.num_epochs):
-            self.neuron_counter = 0  # Reset neuron_counter for each epoch
-            epoch_key = f"E_{epoch}"
-            trace[epoch_key] = {}
-            self.history[epoch_key] = {}  # Initialize history for each epoch
-            self.final_classification_results[epoch_key] = None  # Initialize final classification result for each epoch
-            print(f"Initialized history for {epoch_key}: {self.history[epoch_key]}")  # Debug statement
-            for layer_name, neurons in model.neuron_ids.items():
-                trace[epoch_key][layer_name] = {}
-                for i in range(len(neurons)):
-                    neuron_key = f"n_{self.neuron_counter}"
-                    trace[epoch_key][layer_name][neuron_key] = NeuronTrace(epoch, layer_name, self.neuron_counter)
-                    self.neuron_counter += 1
-        return trace
+    def initialize_inference_trace(self):
+        """Initialize trace for inference if not present."""
+        if 'inference' not in self.trace:
+            self.trace['inference'] = {}
 
-    def initialize_weights(self, model):
-        weights = {}
-        for epoch in range(0, self.num_epochs):
-            epoch_key = f"E_{epoch}"
-            weights[epoch_key] = {}
-            for layer_name in model.neuron_ids.keys():
-                weights[epoch_key][layer_name] = None
-        return weights
+    def initialize_training_trace(self, epoch=0):
+        """Initialize trace for training if not present."""
+        if epoch not in self.trace:
+            self.trace[epoch] = {}
 
-    def initialize_biases(self, model):
-        biases = {}
-        for epoch in range(0, self.num_epochs):
-            epoch_key = f"E_{epoch}"
-            biases[epoch_key] = {}
-            for layer_name in model.neuron_ids.keys():
-                biases[epoch_key][layer_name] = None
-        return biases
+    def update_layer_activations(self, epoch, layer_name, activations):
+        # activations: numpy array of shape (batch_size, num_neurons)
+        if epoch not in self.trace:
+            if epoch == 'inference':
+                self.trace[epoch] = {}
+            else:
+                raise ValueError(f"No trace found for epoch {epoch}.")
 
-    def record_neuron_trace(self, signature, activation, batch_id):
-        print(f"record_neuron_trace called with signature: {signature}")
-        epoch, layer, neuron_id = parse_signature(signature)
-        epoch_key = f"E_{epoch}"
-        layer_key = layer
-        neuron_key = f"n_{neuron_id}"
+        num_neurons = activations.shape[1]
+        for neuron_index in range(num_neurons):
+            global_neuron_id = self.global_neuron_id_map.get((layer_name, neuron_index))
+            if global_neuron_id is None:
+                continue
 
-        if epoch_key not in self.history:
-            self.history[epoch_key] = {}
+            # Get or create the NeuronTrace for this neuron
+            neuron_trace = self.trace[epoch].get(global_neuron_id)
+            if neuron_trace is None:
+                neuron_trace = NeuronTrace(global_neuron_id, epoch, layer_name)
+                self.trace[epoch][global_neuron_id] = neuron_trace
 
-        if signature not in self.history[epoch_key]:
-            self.history[epoch_key][signature] = {
-                "activations": {},
-                "signature": signature
-            }
+            # Get activations for this neuron across the batch
+            neuron_activations = activations[:, neuron_index]
+            neuron_trace.update_activation(neuron_activations.tolist())
 
-        history_obj = self.history[epoch_key][signature]
+    def store_predictions(self, epoch, predictions):
+        self.predictions[epoch] = predictions.cpu().numpy() 
+    
+    def assign_global_neuron_ids(self, model):
+        for layer_name, layer in model.named_modules():
+            if hasattr(layer, 'weight') and layer.weight is not None:
+                num_neurons = layer.weight.size(0)
+                if layer_name not in self.layer_order:
+                    self.layer_order.append(layer_name)
+                for neuron_index in range(num_neurons):
+                    # Assign a unique global neuron ID if not already assigned
+                    if (layer_name, neuron_index) not in self.global_neuron_id_map:
+                        self.global_neuron_id_map[(layer_name, neuron_index)] = self.global_neuron_counter
+                        self.global_neuron_counter += 1
 
-        # Convert tensors to raw values
-        activation = activation if not isinstance(activation, torch.Tensor) else activation.item()
-        
-        history_obj["activations"][batch_id] = activation
+    def update_trace(self, epoch, model):
+        if epoch == 0:
+            # Only assign global neuron IDs during the first epoch
+            self.assign_global_neuron_ids(model)
 
-        print(f"Updated history for {epoch_key} {layer_key} {neuron_key}: {history_obj}") 
+        for layer_name, layer in model.named_modules():
+            if hasattr(layer, 'weight') and layer.weight is not None:
+                weight_matrix = layer.weight.data.clone().detach().cpu()
+                bias_vector = layer.bias.data.clone().detach().cpu() if hasattr(layer, 'bias') and layer.bias is not None else None
 
-    def record_layer_trace(self, epoch, layer_name, weights, biases):
-        epoch_key = f"E_{epoch}"
-        self.weights[epoch_key][layer_name] = weights
-        self.biases[epoch_key][layer_name] = biases
-        print(f"Recorded weights and biases for {layer_name} in {epoch_key}")  
-        
-    def set_final_classification_result(self, epoch, result):
-        # Note: In future, we may want to associate results with batch numbers and not flatten them like such for simplicity
-        epoch_key = f"E_{epoch}"
-        # Flatten the result tensor to a 1D list
-        flattened_result = result.view(-1).tolist()
-        self.final_classification_results[epoch_key] = flattened_result
-        print(f"Set final classification result for {epoch_key}: {flattened_result}")  
-        
-    # Handy accessor function to help access the network tree 
-    def get_trace(self, epoch=None, layer=None, neuron_id=None):
-        if epoch is not None and layer is not None and neuron_id is not None:
-            epoch_key = f"{epoch}"
-            layer_key = layer
-            neuron_key = f"{neuron_id}"
-            return self.trace[epoch_key][layer_key].get(neuron_key, None)
-        elif epoch is not None and layer is not None:
-            epoch_key = f"{epoch}"
-            layer_key = layer
-            return self.trace[epoch_key][layer_key]
-        elif epoch is not None:
-            epoch_key = set_model_level_label('epoch', 0)
-            return self.trace[epoch_key]
-        return self.trace
+                num_neurons = weight_matrix.size(0)
 
-    def print_history(self):
-        for epoch, epoch_data in self.history.items():
-            print(f"Epoch: {epoch}")
-            for signature, trace_obj in epoch_data.items():
-                print(f"Signature: {signature}, Trace Object: {trace_obj}")
+                # Initialize dictionaries if not present
+                self.trace.setdefault(epoch, {})
 
-    def calculate_statistics(self, metrics):
-        metrics = [metric for metric in metrics if metric is not None]  # Filter out None values
-        if not metrics:
-            return {'mean': None, 'median': None, 'std': None, 'max': None, 'min': None}
-        metrics = np.array(metrics)
-        mean = np.mean(metrics)
-        median = np.median(metrics)
-        std = np.std(metrics)
-        max = np.max(metrics)
-        min = np.min(metrics)
-        return {'mean': mean, 'median': median, 'std': std, 'max': max, 'min': min}
+                for neuron_index in range(num_neurons):
+                    neuron_weight = weight_matrix[neuron_index]
+                    neuron_bias = bias_vector[neuron_index] if bias_vector is not None else None
 
-    def update_trace_object_with_statistics(self):
-        for epoch_key, epoch_data in self.history.items():
-            for signature, history_obj in epoch_data.items():
-                epoch, layer, neuron = parse_signature(history_obj['signature'])
-                activations = [activation for activation in history_obj["activations"].values()]
-                trace_obj = self.trace[epoch][layer][neuron]
-                trace_obj.activation_metrics = self.calculate_statistics(activations)
-                print_json_like_dump(trace_obj)
-                if self.drop_batches:
-                    # If specified, drop the historical batch data after calculation to conserve space 
-                    history_obj['activations'].clear()
+                    # Get the unique global neuron ID
+                    global_neuron_id = self.global_neuron_id_map[(layer_name, neuron_index)]
+
+                    neuron_trace = NeuronTrace(global_neuron_id, epoch, layer_name, neuron_weight, neuron_bias)
+                    self.trace[epoch][global_neuron_id] = neuron_trace
+    
+    def neurons_to_dataframe(self):
+        data = []
+        for epoch_key, neurons in self.trace.items():
+            for global_neuron_id, neuron_trace in neurons.items():
+                stats = neuron_trace.get_activation_statistics()
+                data.append({
+                    'global_neuron_id': global_neuron_id,
+                    'epoch': epoch_key,
+                    'layer': neuron_trace.layer_name,
+                    'mean_activation': stats['mean'],
+                    'std_dev_activation': stats['std_dev'],
+                    'max_activation': stats['max'],
+                    'min_activation': stats['min'],
+                    'count': stats['count'],
+                    'bias': neuron_trace.bias.item() if neuron_trace.bias is not None else None
+                })
+        return pd.DataFrame(data)
+
+    def connections_to_dataframe(self):
+        data = []
+        for epoch_key, neurons in self.trace.items():
+            # Build a mapping from layer_name to neurons in that layer
+            layer_neurons = {}
+            for global_neuron_id, neuron_trace in neurons.items():
+                layer_neurons.setdefault(neuron_trace.layer_name, {})[global_neuron_id] = neuron_trace
+
+            for layer_idx, layer_name in enumerate(self.layer_order):
+                if layer_idx == 0:
+                    continue  # Skip the first layer as it has no incoming connections
+                prev_layer_name = self.layer_order[layer_idx - 1]
+
+                curr_neurons = layer_neurons.get(layer_name, {})
+                prev_neurons = layer_neurons.get(prev_layer_name, {})
+                num_prev_neurons = len(prev_neurons)
+                if num_prev_neurons == 0:
+                    continue
+
+                # Build mapping from neuron indices to global neuron IDs in previous layer
+                prev_neuron_idx_to_id = {}
+                for global_neuron_id, neuron_trace in prev_neurons.items():
+                    neuron_index = self.get_neuron_index(global_neuron_id)
+                    prev_neuron_idx_to_id[neuron_index] = global_neuron_id
+
+                for global_neuron_id, neuron_trace in curr_neurons.items():
+                    weight_vector = neuron_trace.weight.numpy()
+                    for source_neuron_idx in range(len(weight_vector)):
+                        weight = weight_vector[source_neuron_idx]
+                        source_neuron_id = prev_neuron_idx_to_id.get(source_neuron_idx)
+                        if source_neuron_id is None:
+                            continue
+                        data.append({
+                            'epoch': epoch_key,
+                            'source_layer': prev_layer_name,
+                            'source_neuron': source_neuron_id,
+                            'target_layer': neuron_trace.layer_name,
+                            'target_neuron': global_neuron_id,
+                            'weight': weight
+                        })
+        return pd.DataFrame(data)
+    
+    def get_neuron_index(self, global_neuron_id):
+        for (layer_name, neuron_index), gid in self.global_neuron_id_map.items():
+            if gid == global_neuron_id:
+                return neuron_index
+        return None
