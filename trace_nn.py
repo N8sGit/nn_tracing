@@ -8,7 +8,7 @@ class NeuronTrace:
         self.layer_name = layer_name
         self.weight = weight  # Tensor of weights from previous layer neurons
         self.bias = bias
-        self.activations = []  # List to store activations per sample
+        self.activations = torch.tensor([]) 
         self.activation_sum = 0.0
         self.activation_squared_sum = 0.0
         self.activation_max = float('-inf')
@@ -16,14 +16,17 @@ class NeuronTrace:
         self.count = 0
 
     def update_activation(self, activation_values):
-        for activation_value in activation_values:
-            self.activation_sum += activation_value
-            self.activation_squared_sum += activation_value ** 2
-            self.count += 1
-            self.activation_max = max(self.activation_max, activation_value)
-            self.activation_min = min(self.activation_min, activation_value)
-            self.activations.extend(activation_values)
-    
+        # Convert incoming activations to a tensor if it's not already
+        activation_tensor = torch.tensor(activation_values)
+        # Update activation statistics using vectorized operations
+        self.activation_sum += activation_tensor.sum().item()
+        self.activation_squared_sum += (activation_tensor ** 2).sum().item()
+        self.count += activation_tensor.numel()
+        self.activation_max = max(self.activation_max, activation_tensor.max().item())
+        self.activation_min = min(self.activation_min, activation_tensor.min().item())
+        # Append the new activations to the activations tensor
+        self.activations = torch.cat((self.activations, activation_tensor))
+
     def get_activation_statistics(self):
         if self.count == 0:
             return {
@@ -43,10 +46,7 @@ class NeuronTrace:
             'min': self.activation_min,
             'count': self.count
         }
-
-import torch
-import pandas as pd
-
+    
 class NetworkTrace:
     def __init__(self):
         self.trace = {}
