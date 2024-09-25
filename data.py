@@ -99,7 +99,7 @@ class DataHandler:
         return train_loader, test_loader
 
 # Instantiate DataHandler with dataset_type parameter
-data_handler_iris = DataHandler(dataset_type='iris', n_samples=500, n_features=10, n_classes=3, n_informative=5, scaler=StandardScaler())
+data_handler_iris = DataHandler(dataset_type='iris', n_samples=150, n_features=4, n_classes=3, n_informative=4, scaler=StandardScaler())
 # Generate the Iris dataset
 data_handler_iris.generate_data()
 # Create the DataLoaders for the Iris dataset
