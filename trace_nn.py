@@ -2,6 +2,22 @@ import torch
 import pandas as pd
 
 class NeuronTrace:
+    """
+    Tracks and records activation statistics for a single neuron within a neural network layer.
+
+    Attributes:
+        global_neuron_id (int): Unique identifier for the neuron across the network.
+        epoch (int or str): Epoch number or identifier during which activations are recorded.
+        layer_name (str): Name of the layer containing the neuron.
+        weight (torch.Tensor, optional): Weights associated with the neuron.
+        bias (torch.Tensor, optional): Bias term of the neuron.
+        activations (torch.Tensor): Tensor storing activation values across samples.
+        activation_sum (float): Cumulative sum of activation values.
+        activation_squared_sum (float): Cumulative sum of squared activation values.
+        activation_max (float): Maximum activation value observed.
+        activation_min (float): Minimum activation value observed.
+        count (int): Number of activation samples recorded.
+    """
     def __init__(self, global_neuron_id, epoch, layer_name, weight=None, bias=None):
         self.global_neuron_id = global_neuron_id  # Unique and universal ID
         self.epoch = epoch
@@ -24,8 +40,6 @@ class NeuronTrace:
         self.count += activation_tensor.numel()
         self.activation_max = max(self.activation_max, activation_tensor.max().item())
         self.activation_min = min(self.activation_min, activation_tensor.min().item())
-        # Append the new activations to the activations tensor
-        self.activations = torch.cat((self.activations, activation_tensor))
 
     def get_activation_statistics(self):
         if self.count == 0:
@@ -48,6 +62,7 @@ class NeuronTrace:
         }
     
 class NetworkTrace:
+    
     def __init__(self):
         self.trace = {}
         self.layer_order = []
