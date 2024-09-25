@@ -6,6 +6,10 @@ __pycache__/
 # C extensions
 *.so
 
+# Generated files
+outputs/network_trace.pkl
+outputs/trained_model_full.pth
+
 # Distribution / packaging
 .Python
 build/
