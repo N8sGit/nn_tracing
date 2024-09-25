@@ -10,12 +10,12 @@ from model_config import ModelConfigurator
 
 def main():
     # Extract configurations specific to the Iris dataset
-    num_epochs = config_iris['num_epochs']
-    layer_names = config_iris['layer_names']
+    num_epochs = config_iris.num_epochs
+    layer_names = config_iris.layer_names
 
     # Retrieve DataLoaders from the config
-    train_loader = config_iris['data']['train_loader']
-    test_loader = config_iris['data']['test_loader']
+    train_loader = config_iris.data['train_loader']
+    test_loader = config_iris.data['test_loader']
 
     # Initialize the base model for the Iris dataset
     base_model = IrisNN()
