@@ -62,19 +62,19 @@ class ModelConfigurator:
             return {
                 'loss_function': nn.BCELoss(),
                 'output_activation': nn.Sigmoid(),
-                'label_format': 'single_column',  # Labels should be in shape (batch_size, 1)
+                'label_format': 'single_column',
             }
         elif model_type == 'multi_class_classification':
             return {
                 'loss_function': nn.CrossEntropyLoss(),
-                'output_activation': None,  # CrossEntropyLoss expects logits
-                'label_format': 'integer_labels',  # Labels should be integers (batch_size,)
+                'output_activation': None,
+                'label_format': 'integer_labels',
             }
         elif model_type == 'regression':
             return {
                 'loss_function': nn.MSELoss(),
                 'output_activation': None,
-                'label_format': 'continuous_values',  # Labels are continuous (batch_size, 1)
+                'label_format': 'continuous_values',
             }
         elif model_type == 'custom': 
             if custom_config is None:
