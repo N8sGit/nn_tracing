@@ -1,7 +1,7 @@
 # ANN_Tracing
 ![Image of a artificial neural network over graph paper](/assets/ann_graph_paper.jpg)
 
-
+## **Note**: The more code-focused parts of this ReadMe is currently out of date. It still mostly applies to legacy code. I'm working on a rewrite and it should be up shortly! 
 ## Table of Contents
 - [Overview](#overview)
 - [Inspiration & Rationale](#inspiration--rationale)
@@ -237,12 +237,12 @@ A few libraries not listed in the requirements.txt
 
 Currently the project is at the proof of concept stage. The minimum viable proof of concept is defined as the capability to scan a simple binary classification model to produce  visualizations about its most salient inner workings. 
 
-- Proof of Concept (In Progress)
+- Proof of Concept **COMPLETED**
 - Draft of white paper 
-- Add support for multi-classification ANNs
-- Continue to research and improve on the analysis and visualizations (In Progress)
-- Investigate ways to optimize storage and reduce general overhead (In Progress)
-- Generalize into an implementation-agnostic specification that supports as many model types as possible 
+- Add support for multi-classification ANNs **COMPLETED**
+- Continue to research and improve on the analysis and visualizations _In Progress_
+- Investigate ways to optimize storage and reduce general overhead **COMPLETED**
+- Abstract the specification to supports as many model types as possible **COMPLETED**
 - Improve usage (either by providing better scripting logic so sourcefiles don't need to be manually modified and can be set via terminal commands, or by providing a GUI )
 - Add benchmarks to measure overhead (A/B testing)
 
