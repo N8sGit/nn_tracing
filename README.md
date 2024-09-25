@@ -237,21 +237,23 @@ A few libraries not listed in the requirements.txt
 
 Currently the project is at the proof of concept stage. The minimum viable proof of concept is defined as the capability to scan a simple binary classification model to produce  visualizations about its most salient inner workings. 
 
-- Proof of Concept **COMPLETED**
+- Proof of Concept _In Progress_ (but making very good progress)
 - Draft of white paper 
 - Add support for multi-classification ANNs **COMPLETED**
 - Continue to research and improve on the analysis and visualizations _In Progress_
-- Investigate ways to optimize storage and reduce general overhead **COMPLETED**
-- Abstract the specification to supports as many model types as possible **COMPLETED**
-- Improve usage (either by providing better scripting logic so sourcefiles don't need to be manually modified and can be set via terminal commands, or by providing a GUI )
+- Investigate ways to optimize storage and reduce general overhead _In Progress_
+- Abstract the specification to support as many model types as possible **COMPLETED**
+- Improve user-friendliness
 - Add benchmarks to measure overhead (A/B testing)
+- Improve robustness and error handling
+- Simplified API for tracing
 
 ## Attributions:
 When the idea for this project first occured to me, I bounced it off ChatGPT as I have come to find using it as a sounding board  is often a helpful way to flesh thoughts out. My initial prompt was very high level and abstract and I did not ask for code. But to my surprise it began to generate code for it. At that point I was almost as interested to see if the AI could generate working code for my idea as I was in the idea itself. 
 
 While ChatGPT has a share conversation feature, I was getting this error "Sharing conversations with images or audio is not yet supported", and so to share the whole chat I would have to go through a lengthier process of exporting my entire chat history, sorting through a big JSON object of the conversations, finding that session and making it presentable with all its markdown and structure. 
 
-Since this involves having to download my my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of academic transparency but also because I think it is an interesting document. If you are interested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies detailed requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable feedback and conceptual recommendations. 
+Since this involves having to download my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of academic transparency but also because I think it is an interesting document. If you are interested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies detailed requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable feedback and conceptual recommendations. 
 
 When you look at this chat, it becomes clear when the AI reaches its limit and by comparing the code it generates to this codebase you can see where the two depart. Without using AI generated code this project would have probably taken me 3-6 months to do completely manually. It's amazing how quickly it allowed me to bootstrap my ideas, try out many different approaches at reduced effort and cost, and vastly accelerate knowledge production.
 
