@@ -1,7 +1,7 @@
 # ANN_Tracing
 ![Image of a artificial neural network over graph paper](/assets/ann_graph_paper.jpg)
 
-## **Note**: The more code-focused parts of this ReadMe is currently out of date. It still mostly applies to legacy code. I'm working on a rewrite and it should be up shortly! 
+## **Note**: The more code-focused parts of this ReadMe is currently out of date.  It still mostly applies to legacy code.  The project should still run if you install the dependencies and execute the cells in analysis_experimental.ipynb. I'm working on a rewrite and it should be up shortly! 
 ## Table of Contents
 - [Overview](#overview)
 - [Inspiration & Rationale](#inspiration--rationale)
@@ -212,6 +212,7 @@ python requirements.txt
 A few libraries not listed in the requirements.txt
 - ``pandas                    2.2.2 ``
 - ``adjusttext                1.2.0 ``
+- ``plotly                    5.9.0  ``
 
 ## Files
 
