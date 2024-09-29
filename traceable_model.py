@@ -4,6 +4,8 @@ from torch.utils.data import DataLoader, TensorDataset
 from contextlib import contextmanager
 
 class TraceableModel(nn.Module):
+    VALID_MODES = {'training', 'inference'}
+
     def __init__(self, model, network_trace, layers_to_trace=None):
         super(TraceableModel, self).__init__()
         self.model = model
@@ -11,33 +13,37 @@ class TraceableModel(nn.Module):
         self.layers_to_trace = layers_to_trace
         self.time_step = 0
         self.handles = []
-        self.is_training_mode = True
+        self._mode = 'training'
         self.layer_order_recorded = False
         self._register_hooks()
 
     @contextmanager
     def trace(self, time_step, mode='training'):
         """Context manager for tracing, handles both training and inference."""
-        self.start_trace(time_step, mode)
+        self.set_mode(mode)
+        self.start_trace(time_step)
         try:
             yield
         finally:
             self.end_trace()
 
-    def start_trace(self, time_step, mode='training'):
-        """Method to start tracing in either training or inference mode."""
-        self.mode = mode  # Use the mode directly instead of is_training_mode
+    def start_trace(self, time_step):
+        """Method to start tracing based on the current mode."""
         self.time_step = time_step
         
         # Initialize the trace for the given time step and mode
         self.network_trace.initialize_trace(self.time_step, self.mode)
+        
+        # If switching to inference mode, ensure hooks are registered
+        if self.mode == 'inference' and not self.handles:
+            self._register_hooks()
 
     def end_trace(self):
-        """Call this method to end tracing and unmount recording hooks."""
-        self.network_trace.update_trace(self.time_step, self.model, self.mode)
+        """Ends tracing and handles mode-specific operations."""
+        self.network_trace.update_trace(self.time_step, self.model)
         self.time_step += 1  # Increment the time step
         if self.mode == 'inference':
-            self.remove_hooks()  # Only needed for inference mode, if desired
+            self.remove_hooks()  # Remove hooks after inference if desired
 
     def _get_activation_hook(self, layer_name):
         def hook(module, input, output):
@@ -46,7 +52,7 @@ class TraceableModel(nn.Module):
                 if layer_name not in self.network_trace.layer_order:
                     self.network_trace.layer_order.append(layer_name)
             # Record activations during inference
-            if not self.is_training_mode:
+            if self.mode == 'inference':
                 activations = output.detach().view(output.size(0), -1)
                 self.network_trace.update_layer_activations(self.time_step, layer_name, activations)
         return hook
@@ -67,39 +73,65 @@ class TraceableModel(nn.Module):
     def forward(self, x):
         return self.model(x)
 
-def predict(self, x, batch_size=None, return_probabilities=False, device=None):
-    """Perform inference with activation recording."""
-    self.eval()
-    if device is not None:
-        self.to(device)
-        x = x.to(device)
-    outputs = []
-    
-    # Replace 'epoch' with 'time_step' and manage the time step properly
-    with self.trace(time_step=self.time_step, mode='inference'):
-        with torch.no_grad():
-            if batch_size:
-                dataset = TensorDataset(x)
-                dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-                for batch in dataloader:
-                    batch_x = batch[0]
-                    output = self.forward(batch_x)
-                    outputs.append(output.cpu())
-                outputs = torch.cat(outputs, dim=0)
-            else:
-                output = self.forward(x)
-                outputs.append(output.cpu())
-                outputs = outputs[0]
-            if return_probabilities:
-                if outputs.shape[1] == 1:
-                    outputs = torch.sigmoid(outputs)
-                else:
-                    outputs = torch.softmax(outputs, dim=1)
-                
-        # Store predictions using the current time step
-        self.network_trace.store_predictions(self.time_step, outputs)
+    def predict(self, x, batch_size=None, return_probabilities=False, device=None):
+        """Perform inference with activation recording."""
+        self.eval_mode()
+        if device is not None:
+            self.to(device)
+            x = x.to(device)
+        outputs = []
         
-        # Increment the time step to ensure unique recording for each prediction
-        self.time_step += 1
-    
-    return outputs
+        with self.trace(time_step=self.time_step, mode='inference'):
+            with torch.no_grad():
+                if batch_size:
+                    dataset = TensorDataset(x)
+                    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+                    for batch in dataloader:
+                        batch_x = batch[0]
+                        output = self.forward(batch_x)
+                        outputs.append(output.cpu())
+                    outputs = torch.cat(outputs, dim=0)
+                else:
+                    output = self.forward(x)
+                    outputs.append(output.cpu())
+                    outputs = outputs[0]
+                if return_probabilities:
+                    if outputs.shape[1] == 1:
+                        outputs = torch.sigmoid(outputs)
+                    else:
+                        outputs = torch.softmax(outputs, dim=1)
+                
+            # Store predictions using the current time step
+            self.network_trace.store_predictions(self.time_step, outputs)
+            
+            # Increment the time step to ensure unique recording for each prediction
+            self.time_step += 1
+        
+        return outputs
+
+    @property
+    def mode(self):
+        return self._mode
+
+    def set_mode(self, mode):
+        """
+        Sets the mode of the model to either 'training' or 'inference'.
+        Raises a ValueError if the mode is invalid.
+        """
+        if not isinstance(mode, str):
+            raise TypeError(f"Mode must be a string, got {type(mode).__name__}")
+        mode = mode.lower()
+        if mode not in self.VALID_MODES:
+            raise ValueError(f"Invalid mode '{mode}'. Valid modes are 'training' and 'inference'.")
+        self._mode = mode
+        self.network_trace.set_mode(mode)  # Synchronize mode with NetworkTrace
+
+    def train_mode(self):
+        """Convenience method to set the model to training mode."""
+        self.set_mode('training')
+        self.train()
+
+    def eval_mode(self):
+        """Convenience method to set the model to evaluation mode."""
+        self.set_mode('inference')
+        self.eval()

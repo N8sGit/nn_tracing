@@ -69,18 +69,26 @@ class NetworkTrace:
         self.global_neuron_id_map = {}
         self.global_neuron_counter = 0
         self.predictions = {}
+        self.mode = 'training'  # Default mode
+
+    def set_mode(self, mode):
+        """Sets the current mode for the NetworkTrace."""
+        if mode not in {'training', 'inference'}:
+            raise ValueError(f"Invalid mode '{mode}'. Valid modes are 'training' and 'inference'.")
+        self.mode = mode
 
     def initialize_trace(self, time_step, mode):
         """Initialize trace for the current mode and time step if not present."""
-        if mode not in self.trace:
-            self.trace[mode] = {}
-        if time_step not in self.trace[mode]:
-            self.trace[mode][time_step] = {}
+        self.set_mode(mode)
+        if self.mode not in self.trace:
+            self.trace[self.mode] = {}
+        if time_step not in self.trace[self.mode]:
+            self.trace[self.mode][time_step] = {}
 
-    def update_layer_activations(self, time_step, layer_name, activations, mode):
-        # activations: numpy array of shape (batch_size, num_neurons)
-        if time_step not in self.trace[mode]:
-            raise ValueError(f"No trace found for time step {time_step} in mode {mode}.")
+    def update_layer_activations(self, time_step, layer_name, activations):
+        """Records activations for a specific layer and time step."""
+        if time_step not in self.trace[self.mode]:
+            raise ValueError(f"No trace found for time step {time_step} in mode {self.mode}.")
 
         num_neurons = activations.shape[1]
         for neuron_index in range(num_neurons):
@@ -89,10 +97,10 @@ class NetworkTrace:
                 continue
 
             # Get or create the NeuronTrace for this neuron
-            neuron_trace = self.trace[mode][time_step].get(global_neuron_id)
+            neuron_trace = self.trace[self.mode][time_step].get(global_neuron_id)
             if neuron_trace is None:
                 neuron_trace = NeuronTrace(global_neuron_id, time_step, layer_name)
-                self.trace[mode][time_step][global_neuron_id] = neuron_trace
+                self.trace[self.mode][time_step][global_neuron_id] = neuron_trace
 
             # Get activations for this neuron across the batch
             neuron_activations = activations[:, neuron_index]
@@ -100,11 +108,14 @@ class NetworkTrace:
 
     def store_predictions(self, time_step, predictions):
         """Store predictions for the given time step during inference."""
+        if self.mode != 'inference':
+            raise ValueError("Predictions can only be stored in 'inference' mode.")
         if 'inference' not in self.predictions:
             self.predictions['inference'] = {}
         self.predictions['inference'][time_step] = predictions.cpu().numpy()
         
     def assign_global_neuron_ids(self, model):
+        """Assigns unique global neuron IDs to each neuron in the model."""
         for layer_name, layer in model.named_modules():
             if hasattr(layer, 'weight') and layer.weight is not None:
                 num_neurons = layer.weight.size(0)
@@ -116,8 +127,9 @@ class NetworkTrace:
                         self.global_neuron_id_map[(layer_name, neuron_index)] = self.global_neuron_counter
                         self.global_neuron_counter += 1
 
-    def update_trace(self, time_step, model, mode):
-        if time_step == 0 and mode == 'training':
+    def update_trace(self, time_step, model):
+        """Updates the trace with the current state of the model."""
+        if time_step == 0 and self.mode == 'training':
             # Only assign global neuron IDs during the first time step of training
             self.assign_global_neuron_ids(model)
 
@@ -129,8 +141,8 @@ class NetworkTrace:
                 num_neurons = weight_matrix.size(0)
 
                 # Initialize dictionaries if not present
-                self.trace.setdefault(mode, {})
-                self.trace[mode].setdefault(time_step, {})
+                self.trace.setdefault(self.mode, {})
+                self.trace[self.mode].setdefault(time_step, {})
 
                 for neuron_index in range(num_neurons):
                     neuron_weight = weight_matrix[neuron_index]
@@ -140,9 +152,10 @@ class NetworkTrace:
                     global_neuron_id = self.global_neuron_id_map[(layer_name, neuron_index)]
 
                     neuron_trace = NeuronTrace(global_neuron_id, time_step, layer_name, neuron_weight, neuron_bias)
-                    self.trace[mode][time_step][global_neuron_id] = neuron_trace
-    
+                    self.trace[self.mode][time_step][global_neuron_id] = neuron_trace
+
     def neurons_to_dataframe(self):
+        """Converts neuron traces to a pandas DataFrame."""
         data = []
         for mode_key, mode_traces in self.trace.items():
             for time_step_key, neurons in mode_traces.items():
@@ -161,8 +174,10 @@ class NetworkTrace:
                         'bias': neuron_trace.bias.item() if neuron_trace.bias is not None else None,
                         'mode': mode_key  # Include the mode in the data
                     })
-            return pd.DataFrame(data)
+        return pd.DataFrame(data)
+
     def connections_to_dataframe(self):
+        """Converts connection traces to a pandas DataFrame."""
         data = []
         for mode_key, mode_traces in self.trace.items():
             for time_step_key, neurons in mode_traces.items():
@@ -206,8 +221,9 @@ class NetworkTrace:
                                 'mode': mode_key  # Include the mode in the data
                             })
         return pd.DataFrame(data)    
-    
+
     def get_neuron_index(self, global_neuron_id):
+        """Retrieves the neuron index given a global neuron ID."""
         for (layer_name, neuron_index), gid in self.global_neuron_id_map.items():
             if gid == global_neuron_id:
                 return neuron_index
