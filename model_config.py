@@ -9,8 +9,8 @@ class ModelConfig:
     hidden_size: int
     output_size: int
     num_samples: int
-    num_epochs: int
-    epoch_interval: List[int]
+    num_time_steps: int
+    time_step_interval: List[int]
     layer_names: Dict[str, str]
     batch_size: Optional[int] = 16
     inference_batch_size: Optional[int] = 30
@@ -22,8 +22,8 @@ config = ModelConfig(
     hidden_size=10,
     output_size=1,
     num_samples=100,
-    num_epochs=30,
-    epoch_interval=[10, 20, 30],
+    num_time_steps=30,  
+    time_step_interval=[10, 20, 30],
     layer_names={
         'input': 'fc1',
         'hidden': 'fc2',
@@ -37,10 +37,10 @@ config_iris = ModelConfig(
     hidden_size=10,
     output_size=3,
     num_samples=150,
-    num_epochs=20,
+    num_time_steps=20,
     batch_size=16,
     inference_batch_size=30,
-    epoch_interval=[10, 20],
+    time_step_interval=[10, 20], 
     layer_names={
         'input': 'L_input',
         'hidden': 'L_hidden_1',
@@ -53,8 +53,6 @@ config_iris = ModelConfig(
         'y_test': data_handler_iris.y_test
     }
 )
-
-# Below is a model configurator that pairs different settings depending on model type
 
 import torch.nn as nn
 
