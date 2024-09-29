@@ -243,11 +243,11 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Add support for multi-classification ANNs **COMPLETED**
 - Continue to research and improve on the analysis and visualizations _In Progress_
 - Investigate ways to optimize storage and reduce general overhead _In Progress_
-- Abstract the specification to support as many model types as possible **COMPLETED**
-- Improve user-friendliness
+- Abstract the specification to support as many model types as possible **COMPLETED** (though more model support to be added on a rolling basis)
+- Improve user-friendliness **COMPLETED**
 - Add benchmarks to measure overhead (A/B testing)
 - Improve robustness and error handling
-- Simplified API for tracing
+- Simplified API for tracing **COMPLETED**
 
 ## Attributions:
 When the idea for this project first occured to me, I bounced it off ChatGPT as I have come to find using it as a sounding board  is often a helpful way to flesh thoughts out. My initial prompt was very high level and abstract and I did not ask for code. But to my surprise it began to generate code for it. At that point I was almost as interested to see if the AI could generate working code for my idea as I was in the idea itself. 
