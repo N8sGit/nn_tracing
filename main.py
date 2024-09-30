@@ -7,7 +7,8 @@ def main():
     tracable_pipeline = TraceablePipeline(
         model=IrisNN(),
         config=config_iris,
-        model_type='multi_class_classification'
+        model_type='multi_class_classification',
+        dataset_type='iris'
     )
 
     # Train the model
