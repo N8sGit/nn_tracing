@@ -2,8 +2,18 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 from contextlib import contextmanager
-
 class TraceableModel(nn.Module):
+    """
+    A wrapper class that adds tracing functionality to a PyTorch model.
+
+    This class supports tracing activations and layer order during training and
+    inference, and allows recording predictions during inference for later analysis.
+
+    Key features:
+    - Traces activations and layer order dynamically
+    - Modes: 'training' and 'inference'
+    - Supports easy switching between modes with hooks for layer activations
+    """
     VALID_MODES = {'training', 'inference'}
 
     def __init__(self, model, network_trace, layers_to_trace=None):
@@ -46,6 +56,31 @@ class TraceableModel(nn.Module):
             self.remove_hooks()  # Remove hooks after inference if desired
 
     def _get_activation_hook(self, layer_name):
+        """
+    Creates a forward hook for tracing activations and layer order during the forward pass.
+
+    This method returns a hook function that:
+    1. Records the order of layers during the first forward pass. This is only done once 
+    per session to ensure that the layer order is recorded for analysis.
+    2. During inference, it records the activations of the specified layer, detaching 
+    the output from the computational graph to store it in a trace-friendly format.
+
+    Parameters:
+        layer_name (str): The name of the layer for which the hook is being created. 
+        Used to identify the layer in the network trace.
+
+    Returns:
+        hook (function): A forward hook function to be registered with the specified layer. 
+        This function captures the output (activations) of the layer 
+        during the forward pass, depending on the model's current mode.
+
+    Hook Function Behavior:
+        - If this is the first forward pass and the layer order hasn't been recorded, it appends
+        the layer's name to `self.network_trace.layer_order`.
+        - If the model is in 'inference' mode, it records the activations of the layer, detaching 
+        them from the computational graph, reshaping them to 2D, and updating the `network_trace`
+        object with the activations for the current time step.
+    """
         def hook(module, input, output):
             # Record layer order during the first forward pass
             if not self.layer_order_recorded:

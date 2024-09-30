@@ -59,6 +59,7 @@ import torch.nn as nn
 class ModelConfigurator:
     """
     The ModelConfigurator class groups common model configurations together based on their type.
+    It provides a stateful API for configuring a custom model for testing.
     Currently supported configurations:
     - binary_classification
     - multi_class_classification
@@ -101,7 +102,7 @@ class ModelConfigurator:
             }
         else:
             raise ValueError(f"Unsupported model type: {model_type}")
-
+    # Helper getter functions
     def get_loss_function(self):
         return self.config['loss_function']
 
