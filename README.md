@@ -134,16 +134,11 @@ Everything comes together in ``analysis.ipynb``.  This is where the traced model
 - **Meta-modeling**
 The next thing that comes to mind is to how to actually analyze the model's metadata using machine learning and other types of analysis.
 
-Currently, t-SNE is used to cluster neurons by similarity. This is a rather crude first attempt, and I hope to involve more sophisticated techniques in future.
-
 There are MANY different ways we can slice it here. However, there is a real risk of *apophenia*: the phenomenon of seeing patterns that are not there e.g. faces in the clouds. 
 
 Since we don't really know what a meaningful pattern looks like, it's hard to differentiate a successful experiment from a failed one. But I do have some general avenues of research I would like to explore:
 
 - Probablistic entropy models: e.g Hidden Markov. Probability is a proven tool for making sense of otherwise unmanagable data sets. The driving hypothesis is that when the network decides on a given classification result or prediction, certain of its elements should be in a less random state compared to baseline. If we can define those non-random boundaries, and develop a predictive or classifcatory model for differentiating or separating that relative clump of order from the general blob of randomness, that might be as good as anything we could come up with.
-
-TBC... 
-
 
 ## Usage
 
@@ -206,7 +201,7 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Add benchmarks to measure overhead (A/B testing)
 - Improve robustness and error handling
 - Simplified API for tracing **COMPLETED**
-- Contintue to refine network schema and codebase organization
+- Continue to refine network schema and codebase organization
 - Continue to add support for more exotic model configurations
 
 ## Developments 
