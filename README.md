@@ -203,6 +203,7 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Simplified API for tracing **COMPLETED**
 - Continue to refine network schema and codebase organization
 - Continue to add support for more exotic model configurations
+- Upload a gallery of visualization results
 
 ## Developments 
 Model explainability is an active field. Here I will document interesting developments in the field and comment on how they pretain to this project. 
