@@ -1,7 +1,6 @@
 # ANN_Tracing
 ![Image of a artificial neural network over graph paper](/assets/ann_graph_paper.jpg)
 
-## **Note**: The more code-focused parts of this ReadMe (under Usage) is currently out of date.  It still mostly applies to legacy code.  The project should still run if you install the dependencies and execute the cells in analysis_experimental.ipynb. I'm working on a rewrite and it should be up shortly! 
 ## Table of Contents
 - [Overview](#overview)
 - [Inspiration & Rationale](#inspiration--rationale)
@@ -10,9 +9,6 @@
 - [Dependencies](#dependencies)
 - [Files](#files)
 - [Roadmap](#roadmap)
-- [Attributions](#attributions)
-- [Collaborate](#collaborate)
-- [Note on terminology](#terminology)
 - [Interesting Developments](#developments)
 ## Overview
 
@@ -82,45 +78,14 @@ Conceivable benefits might include:
 The point is it's narrow-minded to not even try. Who knows where it could lead?
 
 
-## API Reference
-
-There are really only three key components to this codebase. The ``TraceableNN``, ``NeuronTrace``, and ``NetworkTrace`` classes.
-
-``TraceableNN`` is essentially a decorator for a regular pytoch model that injects the tracing logic onto a pytorch nn model. ``NeuronTrace`` traces each node in the network, and is a subclass of ``NetworkTrace`` which tracks the entire model. 
+## (Update: NEW AND IMPROVED) API Reference
+See the docstrings of each module for more detailed information. 
 
 ### TraceableNN 
 
-``TraceableNN`` is essentially a wrapper for a model that takes hyperparameters and decorates it with recording logic. For all other purposes it behaves like a regular ANN you might define in pytorch. 
+``TraceableNN`` is a wrapper for a model that takes hyperparameters and decorates it with recording logic. For all other purposes it behaves like a regular ANN you might define in pytorch. 
 
 The implementation of TracableNN is planned to change, with the intent for it to eventually become more abstracted. The ultimate vision for it is that you pass a recipe for any model into it and the tracing logic gets injected and wrapped around any kind of model. 
-
-Upon initialization, ``TraceableNN`` will perform a dry run to initialize the ``network_trace``, the basic framework we will use for future analysis. It assigns every neuron in the model a ``neuron_id`` which is a string of the form: ``n_0, n_1, ..., n_m`` where ``m`` is the cardinal of the set ``n``. Each neuron has a ``NeuronTrace`` object that can capture various statistical metrics about it.  
-
-#### ``TraceableNN`` properties:
-
-- ``input_size, hidden_size, output_size``: (Note: subject to change) These are just regular model config settings that you would provide to specify the dimensions of your model. They and similar configuration variables are globally managed in `model_config.py`. In future iterations I plan to include a more flexible API for feeding in model specs to support a diversity of different model configurations. 
-
-- ``num_epochs``: The number of epochs for your training loop. Globally managed via `model_config.py`. 
-
-- ``epoch_intervals``: Types: ``[Optional]`` ``int``, ``List[int]``, defaults to ``None``. Controls the frequency at which the recording/tracing logic is applied during model training. If a positive nonzero ``int`` is provided, recording will occur at every nth interval where n is the provided ``int``. If ``-1`` is provided, only the last epoch will be recorded/traced. If ``List[int]`` is provided, tracings will occur only at those specified epochs. If no value is provided, scans will occur during every epoch. **Note: Recording for all epochs is not recommended for large models or datasets**
-
-- ``neuron_ids``: Tracks the ids corresponding to each neuron in the network, so they can later be mapped and associated to their respective layers. Upon initialization, ``TraceableNN`` will pass over the model and assign every neuron a unique identifier.
-
-- ``neural_index``: The neural_index dictionary stores the start and end indices of neurons for each layer in the network. For example, if the input layer has 20 neurons, the neural_index for this layer might be (0, 19). This means that neurons in the input layer are indexed from 0 to 19. The neural_index property allows you to manage and organize the tracing data more effectively by ensuring that each neuron has a unique and consistent identifier across different layers and epochs. This is necessary to properly assign neuron_ids and maintain an accurate inventory of neurons across layers.
-
-### NeuronTrace
-``NeuronTrace`` is the tracing logic's concept of a particular instance of a neuron. More precisely, each neuron trace is a canonical form of the neuron, capturing regularized metrics of across the training lifecycle. 
-
-#### ``NeuronTrace`` properties:
-
-- ``signature``: A uniquely identifying string of the form ``[epoch_key][layer_key][neuron_key]``. Since the network trace is essentially a big hash lookup table, stamping each neuron across the training lifecycle with a signature like this makes it uniquely identifiable both in "time" and "space" and provides a slick means to access any neuron across the model lifecycle. Suppose I want to look up the 20th neuron in the hidden layer at epoch 50, I would just have to write ``my_neuron = network_trace[E_50][L_hidden_1][n_20]``
-
-- ``input_neurons``: **DEPRECATED**. Tracks the "canonical connections" of the neuron to its immediate input neurons or features. This approach has been phased out after I realized a more complicated analysis of the neuron's weights is necessary to determine "input neurons of most significance".
-
-- ``bread_crumbs``: WIP. Currently not in use. But the idea of breadcrumbs is similar to input_neurons. But eventually these will be calculated from an analysis of the most consistent strengths of connections, leading to a picture of what neurons contributed most to a classification result. I am now realizing that these breadcrumbs do not belong on the NeuronTrace class, however. They should be considered global properties.
-
-- ``activation, weight,`` and ``bias`` +  ``_metrics``: Captures a basic statistical profile of the neuron. Currently these metrics are offline and unused while I figure out what to do with them. More metrics can be added arbitrarily. These will probably be rearranged in future iterations. 
-
 
 ### NetworkTrace
 
@@ -137,30 +102,31 @@ A network trace is simply a hierarchically nested data structure that captures t
 
 Later, we import this hierarchical structure into a jupyter notebook, convert it into a multi-indexed pandas dataframe, and now we have a neat, tidy representation of the whole model and everything we cared to capture about it as it went through its training.
 
-#### ``NetworkTrace`` properties: 
+### ModelConfig and ModelConfigurator
+
+* ``ModelConfig ``: A dataclass that captures a model's parameter configuration with the following schema: 
+ ```bash
+ input_size: int
+    hidden_size: int
+    output_size: int
+    num_samples: int
+    num_time_steps: int
+    time_step_interval: List[int]
+    layer_names: Dict[str, str]
+    batch_size: Optional[int] = 16
+    inference_batch_size: Optional[int] = 30
+    data: Optional[Dict] = field(default_factory=dict)
+```
+* ``ModelConfigurator ``: A factory function that groups commonly associated model recipes together for loss functions, activation functions and label formats. See docstring for more details
+
+### DataHandler
+A factory for a data model. Helps to generate a synthetic data set or load an existing one for the pipeline and sets up data loaders. See docstrings for more details.
 
 
-- ``drop_batches``: Types: ``[Optional]`` ``bool`` defaults to ``True``. If set to ``True`` intermediate metadata will be dropped after computing final metrics. This is to help reduce storage footprint. Otherwise, intermediate metadata will be conserved across the training lifecycle and exported along with the network_trace. Similar drop flags are likely to be added for other categories of data e.g ``drop_weights``, ``drop_biases``, etc, if for some reason the user wants to discard these (potentially heavy) collections after computing over them.
+### TracablePipeline
+A pipeline that combines model configs, the model configurator, the data handler, and the tracable model into a single convenient flow. If you follow the existing code it shows how to set everything up with the "iris" data set. Follow this pattern for any other dataset or model you might want to try.
 
-- ``history``: WIP. The history attribute tracks transient, nonlearnable parameters, which for now are essentially just the activation values. Every neuron is indexed by signature, and its activations are updated and stored by ``batch_id``. Basic statistics would then be calculated from this history, placed on the NeuralTrace objects of the corresponding signature, and the history dictionary reset to empty. I realized later however that storing activation values during training is not very useful, a space hog, and quite cumbersome. The plan for history in the future is to measure it during inference mode on the now pre-trained model. Details of this plan are forthcoming.
 
-- ``trace``: This is the actual skeleton of the schema that will hold with all the data on it. It has the form:
-
-``
-Epoch: {
-    Layer: {
-        ...,
-        Neuron:{
-            ...,
-        }
-        ...,
-    },
-    ...,
-}
-``
-Various properties that are appropriate to the given level can be placed on it. So for example, the weights are recorded on the Neuron level, for every neuron, at every epoch, etc. 
-
-I'm still playing around with what kind of data should go where, so expect this layout to change.
 
 ## Analysis
 Everything comes together in ``analysis.ipynb``.  This is where the traced model is outputed and prepared for analysis
@@ -197,12 +163,6 @@ See [Roadmap](#roadmap) for more information about the project's current and hop
 
 In the future I hope to add a UI to make configuration more accessible. 
 
-
-## Modifying the ANN model
-While the ideal goal of this project is to have an abstract specification that works with any model, the reality at the moment is that the code in its current state is probably closely coupled to the exact parameters of the ``TracableNN`` class and will break if exposed to anything too fundamentally different in layout. Once I get a good proof of concept, hopefully I will figure out how to make this work for all types of models. 
-
-
-
 ## Dependencies
 
 For a list of required modules, see:
@@ -216,23 +176,21 @@ A few libraries not listed in the requirements.txt
 
 ## Files
 
-- ``data.py``: This is where you would set up the data for the model. I am currently using a synthetic binary classification data set using sci-kit learn's make_classification function. Originally I thought it really didn't matter what sort of data was being used, only that it was simple at first. Now I realize I probably should have chosen a more semantic data set as this could have made it easier to identify meaningful states. I am planning a major overhaul to this part of the code however .
+- ``data.py``: This is where you would set up the data for the model.
 
-- ``main.py``: the main process. Everything comes together here. The model is initialized and declared, the data imported and provided to it, and the training loop executed. Results are then saved away to ``/outputs`` to be analyzed elsewhere.
+- ``main.py``: the main process. Everything comes together here. Currently this is simply where the pipeline gets executed. Results are then saved away to ``/outputs`` to be analyzed elsewhere.
 
-- ``model.py``: This is where TracableNN, the model wrapper, is defined and the tracing logic mounted.
+- ``tracable_model.py``: This is where TracableModel, the model wrapper, is defined and the tracing logic mounted.
 
-- ``model_config.py``: A place to globally manage model configuration. Useful since we may need to refrence the same parameters on more than one occasion.
+- ``pipeline.py``: the pipeline code.
+
+- ``model_config.py``: A place to globally manage model configs. Useful since we may need to refrence the same parameters on more than one occasion.
 
 - ``trace_nn.py``: Where the tracing logic is defined. The NeuronTrace and NetworkTrace classes live here.
 
-- ``analysis.ipynb``: Where I imagine most users will spend most of their time once I create a better pipeline for integrating and mounting any given model for tracing. This jupyter notebook will cast the network trace into a dataframe and is where various analyses can be conducted.
+- ``analysis.ipynb``:  This jupyter notebook is is where various analyses and visualizations can be conducted.
 
-- ``plot.py`` Various functions related to plotting visualizations. Currently not seeing much use as I revisit the whole idea about what approach is best for capturing meaningful information about model metadata.
-
-- ``helpers.py``: Helper functions that make certain routine activities easier. Currently there are functions here that make navigating the string to integer casting and vice versa that is necessary to do hash lookups efficiently.
-
-- ``inspection.py``: Various debugging and observation tools for printing out data when needed.
+- ``helpers.py``: Helper functions that make certain routine activities easier.
 
 ## Roadmap
 
@@ -244,25 +202,12 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Continue to research and improve on the analysis and visualizations _In Progress_
 - Investigate ways to optimize storage and reduce general overhead _In Progress_
 - Abstract the specification to support as many model types as possible **COMPLETED** (though more model support to be added on a rolling basis)
-- Improve user-friendliness **COMPLETED**
+- Improve user-friendliness of API **COMPLETED**
 - Add benchmarks to measure overhead (A/B testing)
 - Improve robustness and error handling
 - Simplified API for tracing **COMPLETED**
-
-## Attributions:
-When the idea for this project first occured to me, I bounced it off ChatGPT as I have come to find using it as a sounding board  is often a helpful way to flesh thoughts out. My initial prompt was very high level and abstract and I did not ask for code. But to my surprise it began to generate code for it. At that point I was almost as interested to see if the AI could generate working code for my idea as I was in the idea itself. 
-
-While ChatGPT has a share conversation feature, I was getting this error "Sharing conversations with images or audio is not yet supported", and so to share the whole chat I would have to go through a lengthier process of exporting my entire chat history, sorting through a big JSON object of the conversations, finding that session and making it presentable with all its markdown and structure. 
-
-Since this involves having to download my entire conversational history from OpenAI and working through it it's not a competely trivial task. However I do plan on sharing the convo at some point. Both for the sake of academic transparency but also because I think it is an interesting document. If you are interested in this project and AI, I recommend  browsing this chat history when I do get it up as it is a good demonstration of how AI and software developers can fruitfully collaborate. The developer specifies the overall structure and plan, makes high level organizational decisions, provides feedback and critique, verbally specifies detailed requirements, and makes certain creative or targeted code changes, and meanwhile the AI does a lot of the heavy lifting, initial drafting, prototyping, and boilerplating, while also occasionally providing genuinely valuable feedback and conceptual recommendations. 
-
-When you look at this chat, it becomes clear when the AI reaches its limit and by comparing the code it generates to this codebase you can see where the two depart. Without using AI generated code this project would have probably taken me 3-6 months to do completely manually. It's amazing how quickly it allowed me to bootstrap my ideas, try out many different approaches at reduced effort and cost, and vastly accelerate knowledge production.
-
-## Collaborate: 
-If you would like to contribute to this project please reach out! I could especially use help from people with a strong background in data analysis and linear algebra. I haven't yet 100% realized my vision for the project, and before I open the doors up to open sourcing I would like to at least refactor a few areas to make it less coupled on one model. Hopefully this time will come soon though!
-
-## Terminology: 
-The term "staining" came to mind when I first thought of this idea. It is meant to invoke the tissue staining methods used in histology by biologists studying cells. They add certain biochemical markers to tissues to detect various cellular differences. Since this project tries to isolate and color code different structures in artificial neural networks, the metaphor felt apt. I've grown less attached to this imagery over time, but you may still see references to a "staining algorithim" here and there.
+- Contintue to refine network schema and codebase organization
+- Continue to add support for more exotic model configurations
 
 ## Developments 
 Model explainability is an active field. Here I will document interesting developments in the field and comment on how they pretain to this project. 
