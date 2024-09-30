@@ -8,15 +8,21 @@ from data import DataHandler
 from model_config import ModelConfigurator
 
 class TraceablePipeline:
-    def __init__(self, model, config, model_type='multi_class_classification'):
+    '''
+    Abstracts all of the data handling, model configuration, training and evaluation logic 
+    in one easy to use API. 
+    Just import your model, add your config, and specify your model type and it should take care of the rest. 
+    '''
+    def __init__(self, model, config, model_type='multi_class_classification', dataset_type='classification'):
         # Extract configurations
         self.num_time_steps = config.num_time_steps
         self.layer_names = config.layer_names
         self.batch_size = config.batch_size or 32
+        self.dataset_type = dataset_type
 
         # Initialize data handler
         self.data_handler = DataHandler(
-            dataset_type='iris',
+            dataset_type=self.dataset_type,
             n_samples=config.num_samples,
             n_features=config.input_size,
             n_classes=config.output_size,
