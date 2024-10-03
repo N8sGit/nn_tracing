@@ -87,11 +87,10 @@ See the docstrings of each module for more detailed information.
 
 ``TraceableNN`` is a wrapper for a model that takes hyperparameters and decorates it with recording logic. For all other purposes it behaves like a regular ANN you might define in pytorch. 
 
-The implementation of TracableNN is planned to change, with the intent for it to eventually become more abstracted. The ultimate vision for it is that you pass a recipe for any model into it and the tracing logic gets injected and wrapped around any kind of model. 
 
 ### NetworkTrace
 
-The core of this library. It is effectively a large lookup table with a collection of logic for writing down a bunch of numbers at static, revistable locations. 
+The core of this library. It is effectively a colection of utilities for a large lookup table with a collection of logic for writing down a bunch of numbers at static, revistable locations. 
 
  While I was studying how neural networks get trained in libraries such as TensorFlow and PyTorch, I realized that they had a very peculiar geometry. They are, in essence, hypercubes, 4 dimensional cubes, where-- 
 - the 4th dimension is time (captured by epochs)
@@ -105,6 +104,7 @@ A network trace is simply a hierarchically nested data structure that captures t
 Later, we import this hierarchical structure into a jupyter notebook, convert it into a multi-indexed pandas dataframe, and now we have a neat, tidy representation of the whole model and everything we cared to capture about it as it went through its training.
 
 ### ModelConfig and ModelConfigurator
+A set of utiltiies for globally managing model configurations.
 
 * ``ModelConfig ``: A dataclass that captures a model's parameter configuration with the following schema: 
  ```bash
@@ -122,12 +122,11 @@ Later, we import this hierarchical structure into a jupyter notebook, convert it
 * ``ModelConfigurator ``: A factory function that groups commonly associated model recipes together for loss functions, activation functions and label formats. See docstring for more details
 
 ### DataHandler
-A factory for a data model. Helps to generate a synthetic data set or load an existing one for the pipeline and sets up data loaders. See docstrings for more details.
+A factory for a data model that facilitates preprocessing. Helps to generate a synthetic data set or load an existing one for the pipeline and sets up data loaders. See docstrings for more details.
 
 
 ### TracablePipeline
 A pipeline that combines model configs, the model configurator, the data handler, and the tracable model into a single convenient flow. If you follow the existing code it shows how to set everything up with the "iris" data set. Follow this pattern for any other dataset or model you might want to try.
-
 
 
 ## Analysis
@@ -180,6 +179,8 @@ A few libraries not listed in the requirements.txt
 - ``tracable_model.py``: This is where TracableModel, the model wrapper, is defined and the tracing logic mounted.
 
 - ``pipeline.py``: the pipeline code.
+
+- ``sample_models``: A collection of models to test out.
 
 - ``model_config.py``: A place to globally manage model configs. Useful since we may need to refrence the same parameters on more than one occasion.
 
