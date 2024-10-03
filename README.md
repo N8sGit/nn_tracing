@@ -209,7 +209,7 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Upload a gallery of visualization results
 
 ## Developments 
-Model explainability is an active field. Here I will document interesting developments in the field and comment on how they pretain to this project. 
+Model explainability is an active field. Here I will document interesting developments in the field (and neuroscience).
 
 - **Flywire**: [FlywireAI](https://flywire.ai/) is a project out of Princeton University that has successfully mapped the entire brain of Drosophila melanogaster, the common fruitfly. How cool would this be to do for an AI model! In some ways it would be harder, in some ways it would be easier. This is what I'm saying!
 
