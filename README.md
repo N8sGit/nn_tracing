@@ -203,12 +203,15 @@ Currently the project is at the proof of concept stage. The minimum viable proof
 - Add benchmarks to measure overhead (A/B testing)
 - Improve robustness and error handling
 - Simplified API for tracing **COMPLETED**
-- Continue to refine network schema and codebase organization
-- Continue to add support for more exotic model configurations
+- Continue to refine network schema and codebase organization _In Progress_
+- Continue to add support for more model configurations
+- Improve data handling and pre-processing pipelines
 - Upload a gallery of visualization results
 
 ## Developments 
 Model explainability is an active field. Here I will document interesting developments in the field and comment on how they pretain to this project. 
+
+- **Flywire**: [FlywireAI](https://flywire.ai/) is a project out of Princeton University that has successfully mapped the entire brain of Drosophila melanogaster, the common fruitfly. How cool would this be to do for an AI model! In some ways it would be harder, in some ways it would be easier. This is what I'm saying!
 
 - **Komolgorov-Arnold Networks**: Perhaps one of the more exciting developments I've come across recently, [KANs](https://github.com/mintisan/awesome-kan) are a fresh approach to model architecture overall. They differ from Multi-Layer Perceptrons with their big innovation being that they do away with matrices of weights and fixed activation functions on nodes altogether and instead use learnable activation functions on edges. The neurons, or nodes, in KANs simply sum together a linear combination of univariate continous functions that collectively represent continous multivariate functions thanks to the Komolgorov-Arnold Representation Theorem.  The result of this elegantly streamlined mathematics is a less messy computational environment and a cleaner architecture for tracking.
 
