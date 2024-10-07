@@ -175,10 +175,3 @@ class TraceablePipeline:
             return f'Mean Squared Error: {mse.item():.4f}'
         else:
             return 'No default evaluation available for this loss function.'
-
-    def save_results(self, model_path='outputs/trained_model_full.pth', trace_path='outputs/network_trace.pkl'):
-        # Save the model's state
-        torch.save(self.model.state_dict(), model_path)
-        # Export the network_trace
-        with open(trace_path, 'wb') as f:
-            pickle.dump(self.network_trace, f)
